@@ -3,54 +3,145 @@
 namespace Modules\Auth\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Auth\Classes\Services\AuthService;
+use Modules\Auth\Http\Requests\LoginRequest;
+use Modules\Auth\Http\Requests\RegisterRequest;
+use Modules\Auth\Resources\UserResource;
 
 class AuthController extends Controller
 {
+    public function __construct(private AuthService $authService) {}
+
     /**
-     * Display a listing of the resource.
+     * Realize the user login
      */
-    public function index()
+    public function login(LoginRequest $request): JsonResponse
     {
-        return view('auth::index');
+        try {
+            $credentials = $request->validated();
+            $authData = $this->authService->login($credentials);
+
+            return response()->json([
+                'message' => 'Login realizado com sucesso.',
+                'data' => [
+                    'user' => new UserResource($authData['user']),
+                    'token' => $authData['token'],
+                    'token_type' => $authData['token_type'],
+                ],
+            ], 200);
+        } catch (AuthenticationException $e) {
+            return response()->json([
+                'message' => 'Erro de autenticação.',
+                'errors' => [$e->getMessage()],
+            ], 401);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro interno do servidor.',
+                'errors' => [$e->getMessage()],
+            ], 500);
+        }
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Register a new user
      */
-    public function create()
+    public function register(RegisterRequest $request): JsonResponse
     {
-        return view('auth::create');
+        try {
+            $data = $request->validated();
+            $authData = $this->authService->register($data);
+
+            return response()->json([
+                'message' => 'Usuário cadastrado com sucesso.',
+                'data' => [
+                    'user' => new UserResource($authData['user']),
+                    'token' => $authData['token'],
+                    'token_type' => $authData['token_type'],
+                ],
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro interno do servidor.',
+                'errors' => [$e->getMessage()],
+            ], 500);
+        }
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Realiza o logout do usuário.
      */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function logout(Request $request): JsonResponse
     {
-        return view('auth::show');
+        try {
+            $success = $this->authService->logout();
+
+            if (! $success) {
+                return response()->json([
+                    'message' => 'Usuário não autenticado.',
+                ], 401);
+            }
+
+            return response()->json([
+                'message' => 'Logout realizado com sucesso.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro interno do servidor.',
+                'errors' => [$e->getMessage()],
+            ], 500);
+        }
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Realiza o logout de todos os dispositivos.
      */
-    public function edit($id)
+    public function logoutAll(Request $request): JsonResponse
     {
-        return view('auth::edit');
+        try {
+            $success = $this->authService->logoutAll();
+
+            if (! $success) {
+                return response()->json([
+                    'message' => 'Usuário não autenticado.',
+                ], 401);
+            }
+
+            return response()->json([
+                'message' => 'Logout de todos os dispositivos realizado com sucesso.',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro interno do servidor.',
+                'errors' => [$e->getMessage()],
+            ], 500);
+        }
     }
 
     /**
-     * Update the specified resource in storage.
+     * Returns the authenticated user's information.
      */
-    public function update(Request $request, $id) {}
+    public function me(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
+            if (! $user) {
+                return response()->json([
+                    'message' => 'Usuário não autenticado.',
+                ], 401);
+            }
+
+            return response()->json([
+                'data' => new UserResource($user),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro interno do servidor.',
+                'errors' => [$e->getMessage()],
+            ], 500);
+        }
+    }
 }
