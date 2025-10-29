@@ -48,7 +48,6 @@ class AuthService
             'user_type' => $data['user_type'] ?? 'student',
         ]);
 
-
         // Create a new token
         $token = $user->createToken('auth_token')->plainTextToken;
 

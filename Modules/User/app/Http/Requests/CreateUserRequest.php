@@ -53,7 +53,7 @@ class CreateUserRequest extends FormRequest
 
         $requestedType = $inputType ? UserType::from($inputType) : UserType::Student;
 
-        if (!$user) {
+        if (! $user) {
             return $requestedType->canBeCreatedPublicly();
         }
 

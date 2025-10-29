@@ -74,4 +74,3 @@ class CreateUserByAdminRequest extends FormRequest
         return $user->can('createUserType', [\Modules\User\Models\User::class, $requestedType]);
     }
 }
-

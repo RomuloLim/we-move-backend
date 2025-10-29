@@ -2,7 +2,6 @@
 
 namespace Modules\User\Services;
 
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Modules\User\Enums\UserType;
@@ -57,7 +56,6 @@ class UserService
 
         return $user;
     }
-
 
     /**
      * Lista usuários com filtros.

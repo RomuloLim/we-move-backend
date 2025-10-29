@@ -3,9 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\Sanctum;
-use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
 use Tests\TestCase;
 
