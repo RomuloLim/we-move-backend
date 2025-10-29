@@ -84,8 +84,10 @@ class UserControllerTest extends TestCase
         $response = $this->postJson('/api/v1/users', [
             'name' => 'New Admin',
             'email' => 'newadmin@example.com',
+            'cpf' => '12345678901',
+            'rg' => '123456789',
+            'phone_contact' => '11999999999',
             'password' => 'password123',
-            'password_confirmation' => 'password123',
             'user_type' => 'admin',
         ]);
 
@@ -118,8 +120,10 @@ class UserControllerTest extends TestCase
         $response = $this->postJson('/api/v1/users', [
             'name' => 'New Student',
             'email' => 'student@example.com',
+            'cpf' => '12345678901',
+            'rg' => '123456789',
+            'phone_contact' => '11999999999',
             'password' => 'password123',
-            'password_confirmation' => 'password123',
             'user_type' => 'student',
         ]);
 
@@ -129,8 +133,10 @@ class UserControllerTest extends TestCase
         $response = $this->postJson('/api/v1/users', [
             'name' => 'New Driver',
             'email' => 'driver@example.com',
+            'cpf' => '98765432101',
+            'rg' => '987654321',
+            'phone_contact' => '11888888888',
             'password' => 'password123',
-            'password_confirmation' => 'password123',
             'user_type' => 'driver',
         ]);
 
@@ -148,14 +154,15 @@ class UserControllerTest extends TestCase
         $response = $this->postJson('/api/v1/users', [
             'name' => 'New Super Admin',
             'email' => 'superadmin@example.com',
+            'cpf' => '11111111111',
+            'rg' => '111111111',
+            'phone_contact' => '11777777777',
             'password' => 'password123',
-            'password_confirmation' => 'password123',
             'user_type' => 'super-admin',
         ]);
 
         // Assert
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['user_type']);
+        $response->assertStatus(403);
     }
 
     public function test_super_admin_can_update_user_type(): void
@@ -206,5 +213,96 @@ class UserControllerTest extends TestCase
 
         $response = $this->postJson('/api/v1/users', []);
         $response->assertStatus(401);
+    }
+
+    public function test_guest_can_register_as_student(): void
+    {
+        // Act
+        $response = $this->postJson('/api/v1/register', [
+            'name' => 'New Student',
+            'email' => 'student@example.com',
+            'cpf' => '12345678901',
+            'rg' => '123456789',
+            'phone_contact' => '11999999999',
+            'password' => 'password123',
+        ]);
+
+        // Assert
+        $response->assertStatus(201)
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    'id',
+                    'name',
+                    'email',
+                    'user_type',
+                ],
+            ]);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'student@example.com',
+            'user_type' => UserType::Student->value,
+        ]);
+    }
+
+    public function test_driver_cannot_create_users(): void
+    {
+        // Arrange
+        $driver = User::factory()->create(['user_type' => UserType::Driver]);
+
+        Sanctum::actingAs($driver);
+
+        // Act
+        $response = $this->postJson('/api/v1/users', [
+            'name' => 'New Student',
+            'email' => 'student@example.com',
+            'cpf' => '12345678901',
+            'rg' => '123456789',
+            'phone_contact' => '11999999999',
+            'password' => 'password123',
+            'user_type' => 'student',
+        ]);
+
+        // Assert
+        $response->assertStatus(403);
+    }
+
+    public function test_guest_cannot_access_admin_create_user_route(): void
+    {
+        // Act
+        $response = $this->postJson('/api/v1/users', [
+            'name' => 'New Admin',
+            'email' => 'admin@example.com',
+            'cpf' => '12345678901',
+            'rg' => '123456789',
+            'phone_contact' => '11999999999',
+            'password' => 'password123',
+            'user_type' => 'admin',
+        ]);
+
+        // Assert
+        $response->assertStatus(401);
+    }
+
+    public function test_student_cannot_create_users(): void
+    {
+        // Arrange
+        $student = User::factory()->create(['user_type' => UserType::Student]);
+
+        Sanctum::actingAs($student);
+
+        // Act
+        $response = $this->postJson('/api/v1/users', [
+            'name' => 'Another Student',
+            'email' => 'student2@example.com',
+            'cpf' => '12345678901',
+            'rg' => '123456789',
+            'phone_contact' => '11999999999',
+            'password' => 'password123',
+            'user_type' => 'student',
+        ]);
+
+        // Assert
+        $response->assertStatus(403);
     }
 }
