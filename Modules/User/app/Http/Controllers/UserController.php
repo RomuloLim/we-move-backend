@@ -23,7 +23,8 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        if (! $user?->isAdmin()) {
+        // Use policy for authorization
+        if (! $user || ! $user->can('viewAny', \Modules\User\Models\User::class)) {
             return response()->json([
                 'message' => 'Acesso negado. Apenas administradores podem listar usuários.',
             ], 403);
@@ -97,25 +98,27 @@ class UserController extends Controller
      */
     public function updateType(Request $request, int $userId): JsonResponse
     {
-            $currentUser = $request->user();
-            if (! $currentUser?->isAdmin()) {
-                return response()->json([
-                    'message' => 'Acesso negado.',
-                ], 403);
-            }
+        $currentUser = $request->user();
+        $user = \Modules\User\Models\User::findOrFail($userId);
 
-            $request->validate([
-                'user_type' => ['required', 'string', 'in:admin,student,driver'],
-            ]);
+        $request->validate([
+            'user_type' => ['required', 'string', 'in:admin,student,driver'],
+        ]);
 
-            $user = \Modules\User\Models\User::findOrFail($userId);
-            $newType = UserType::from($request->input('user_type'));
+        $newType = UserType::from($request->input('user_type'));
 
-            $updatedUser = $this->userService->updateUserType($user, $newType, $currentUser);
-
+        // Use policy for authorization
+        if (! $currentUser || ! $currentUser->can('updateUserType', [$user, $newType])) {
             return response()->json([
-                'message' => 'Tipo de usuário atualizado com sucesso.',
-                'data' => new UserResource($updatedUser),
-            ]);
+                'message' => 'Acesso negado.',
+            ], 403);
         }
+
+        $updatedUser = $this->userService->updateUserType($user, $newType, $currentUser);
+
+        return response()->json([
+            'message' => 'Tipo de usuário atualizado com sucesso.',
+            'data' => new UserResource($updatedUser),
+        ]);
+    }
 }

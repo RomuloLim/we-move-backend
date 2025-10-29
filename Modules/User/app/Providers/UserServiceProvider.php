@@ -3,7 +3,10 @@
 namespace Modules\User\Providers;
 
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Modules\User\Models\User;
+use Modules\User\Policies\UserPolicy;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -27,6 +30,7 @@ class UserServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+        $this->registerPolicies();
     }
 
     /**
@@ -61,6 +65,14 @@ class UserServiceProvider extends ServiceProvider
         //     $schedule = $this->app->make(Schedule::class);
         //     $schedule->command('inspire')->hourly();
         // });
+    }
+
+    /**
+     * Register policies.
+     */
+    protected function registerPolicies(): void
+    {
+        Gate::policy(User::class, UserPolicy::class);
     }
 
     /**

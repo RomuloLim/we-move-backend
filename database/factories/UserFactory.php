@@ -35,9 +35,9 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'cpf' => fake()->unique()->cpf(false),
-            'rg' => fake()->unique()->rg(false),
-            'phone_contact' => fake()->unique()->phoneNumberCleared(),
+            'cpf' => fake()->unique()->numerify('###########'),
+            'rg' => fake()->unique()->numerify('#########'),
+            'phone_contact' => fake()->unique()->numerify('###########'),
             'profile_picture_url' => fake()->imageUrl(),
             'remember_token' => Str::random(10),
         ];
