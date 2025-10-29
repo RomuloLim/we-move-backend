@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Auth\Classes\Services\AuthService;
 use Modules\Auth\Http\Requests\LoginRequest;
-use Modules\Auth\Http\Requests\RegisterRequest;
 use Modules\Auth\Resources\UserResource;
 
 class AuthController extends Controller
@@ -37,31 +36,6 @@ class AuthController extends Controller
                 'message' => 'Erro de autenticação.',
                 'errors' => [$e->getMessage()],
             ], 401);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Erro interno do servidor.',
-                'errors' => [$e->getMessage()],
-            ], 500);
-        }
-    }
-
-    /**
-     * Register a new user
-     */
-    public function register(RegisterRequest $request): JsonResponse
-    {
-        try {
-            $data = $request->validated();
-            $authData = $this->authService->register($data);
-
-            return response()->json([
-                'message' => 'Usuário cadastrado com sucesso.',
-                'data' => [
-                    'user' => new UserResource($authData['user']),
-                    'token' => $authData['token'],
-                    'token_type' => $authData['token_type'],
-                ],
-            ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Erro interno do servidor.',

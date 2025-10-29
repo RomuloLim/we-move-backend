@@ -2,10 +2,10 @@
 
 namespace Modules\Auth\Classes\Services;
 
-use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Modules\User\Models\User;
 
 class AuthService
 {
@@ -38,14 +38,16 @@ class AuthService
     /**
      * Makes user registration and returns authentication data.
      */
-    public function register(array $data): array
+    public function register(array $data, ?User $createdBy = null): array
     {
         // Create the user
         $user = User::query()->create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
+            'user_type' => $data['user_type'] ?? 'student',
         ]);
+
 
         // Create a new token
         $token = $user->createToken('auth_token')->plainTextToken;

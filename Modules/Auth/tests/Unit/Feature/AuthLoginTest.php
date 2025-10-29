@@ -2,9 +2,9 @@
 
 namespace Modules\Auth\Tests\Unit\Feature;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Modules\User\Models\User;
 use Tests\TestCase as BaseTestCase;
 
 class AuthLoginTest extends BaseTestCase

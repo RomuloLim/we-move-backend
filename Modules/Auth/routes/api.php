@@ -12,7 +12,6 @@ use Modules\Auth\Http\Controllers\AuthController;
 Route::prefix('v1/auth')->group(function () {
     // Public routes (do not require authentication)
     Route::post('login', [AuthController::class, 'login'])->name('auth.login');
-    Route::post('register', [AuthController::class, 'register'])->name('auth.register');
 
     // Protected routes (require authentication with Sanctum)
     Route::middleware(['auth:sanctum'])->group(function () {

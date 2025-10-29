@@ -2,9 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Modules\User\Enums\UserType;
+use Modules\User\Models\User;
 
 class UserSeeder extends Seeder
 {
@@ -19,6 +20,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Usuário Teste',
                 'password' => Hash::make('senha123'),
+                'cpf' => '12345678900',
                 'email_verified_at' => now(),
             ]
         );
@@ -30,6 +32,7 @@ class UserSeeder extends Seeder
                 'name' => 'Administrador',
                 'password' => Hash::make('admin123'),
                 'email_verified_at' => now(),
+                'user_type' => UserType::Admin,
             ]
         );
     }
