@@ -14,26 +14,19 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Creates test user
-        User::firstOrCreate(
-            ['email' => 'teste@exemplo.com'],
-            [
-                'name' => 'Usuário Teste',
-                'password' => Hash::make('senha123'),
-                'cpf' => '12345678900',
-                'email_verified_at' => now(),
-            ]
-        );
+        User::factory()->create([
+            'email' => 'teste@exemplo.com',
+            'name' => 'Usuário Teste',
+            'password' => Hash::make('senha123'),
+            'cpf' => '12345678900',
+        ]);
 
-        // Creates admin user
-        User::firstOrCreate(
-            ['email' => 'admin@exemplo.com'],
-            [
-                'name' => 'Administrador',
-                'password' => Hash::make('admin123'),
-                'email_verified_at' => now(),
-                'user_type' => UserType::Admin,
-            ]
-        );
+        User::factory()->create([
+            'email' => 'admin@exemplo.com',
+            'name' => 'Administrador',
+            'password' => Hash::make('senha123'),
+            'cpf' => '12345678909',
+            'user_type' => UserType::Admin,
+        ]);
     }
 }

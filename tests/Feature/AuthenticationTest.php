@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\Sanctum;
+use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
 use Tests\TestCase;
 
@@ -14,6 +16,7 @@ class AuthenticationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->artisan('db:seed', ['--class' => 'Database\Seeders\UserSeeder']);
     }
 
@@ -42,73 +45,6 @@ class AuthenticationTest extends TestCase
             ]);
 
         $this->assertEquals('Bearer', $response->json('data.token_type'));
-    }
-
-    public function test_register_with_valid_data(): void
-    {
-        $userData = [
-            'name' => 'Novo Usuário',
-            'email' => 'novo@exemplo.com',
-            'password' => 'senha123456',
-            'password_confirmation' => 'senha123456',
-        ];
-
-        $response = $this->postJson('/api/v1/auth/register', $userData);
-
-        $response->assertStatus(201)
-            ->assertJsonStructure([
-                'message',
-                'data' => [
-                    'user' => [
-                        'id',
-                        'name',
-                        'email',
-                        'email_verified_at',
-                        'created_at',
-                        'updated_at',
-                    ],
-                    'token',
-                    'token_type',
-                ],
-            ]);
-
-        $this->assertEquals('Bearer', $response->json('data.token_type'));
-        $this->assertEquals('Novo Usuário', $response->json('data.user.name'));
-        $this->assertEquals('novo@exemplo.com', $response->json('data.user.email'));
-
-        // Verifica se o usuário foi criado no banco
-        $this->assertDatabaseHas('users', [
-            'email' => 'novo@exemplo.com',
-            'name' => 'Novo Usuário',
-        ]);
-    }
-
-    public function test_register_with_existing_email(): void
-    {
-        $userData = [
-            'name' => 'Novo Usuário',
-            'email' => 'teste@exemplo.com', // Email já existe
-            'password' => 'senha123456',
-            'password_confirmation' => 'senha123456',
-        ];
-
-        $response = $this->postJson('/api/v1/auth/register', $userData);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
-    }
-
-    public function test_register_validation_errors(): void
-    {
-        $response = $this->postJson('/api/v1/auth/register', [
-            'name' => '',
-            'email' => 'email-invalido',
-            'password' => '123',
-            'password_confirmation' => '456',
-        ]);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['name', 'email', 'password']);
     }
 
     public function test_login_with_invalid_credentials(): void

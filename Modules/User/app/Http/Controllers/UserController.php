@@ -7,7 +7,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Modules\User\Enums\UserType;
-use Modules\User\Http\Requests\CreateUserRequest;
+use Modules\User\Http\Requests\CreateUserByAdminRequest;
+use Modules\User\Http\Requests\RegisterStudentRequest;
 use Modules\User\Http\Resources\UserResource;
 use Modules\User\Services\UserService;
 
@@ -45,13 +46,34 @@ class UserController extends Controller
     }
 
     /**
-     * Cria um novo usuário (apenas admins para tipos admin/driver).
+     * Registra um novo estudante (rota pública).
      */
-    public function store(CreateUserRequest $request): JsonResponse
+    public function register(RegisterStudentRequest $request): JsonResponse
     {
         try {
             $data = $request->validated();
-            $user = $this->userService->createUser($data);
+            $user = $this->userService->registerStudent($data);
+
+            return response()->json([
+                'message' => 'Estudante registrado com sucesso.',
+                'data' => new UserResource($user),
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro interno do servidor.',
+                'errors' => [$e->getMessage()],
+            ], 500);
+        }
+    }
+
+    /**
+     * Cria um novo usuário (apenas admins para tipos admin/driver).
+     */
+    public function store(CreateUserByAdminRequest $request): JsonResponse
+    {
+        try {
+            $data = $request->validated();
+            $user = $this->userService->createUserByAdmin($data);
 
             return response()->json([
                 'message' => 'Usuário criado com sucesso.',

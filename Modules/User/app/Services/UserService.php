@@ -11,40 +11,46 @@ use Modules\User\Models\User;
 class UserService
 {
     /**
-     * Cria um novo usuário aplicando regras de autorização:
-     * - Usuários não autenticados podem apenas registrar `student`.
-     * - Motoristas não podem criar usuários.
-     * - Apenas Admin/SuperAdmin podem criar `admin` ou `driver`.
-     * - Não é permitido criar `super-admin` por essa rota.
+     * Registra um novo estudante (rota pública).
+     * Apenas estudantes podem ser criados por esta rota.
      */
-    public function createUser(array $data): User
+    public function registerStudent(array $data): User
     {
-        $creator = Auth::user();
+        $user = User::query()->create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'cpf' => $data['cpf'],
+            'rg' => $data['rg'],
+            'phone_contact' => $data['phone_contact'],
+            'profile_picture_url' => $data['profile_picture_url'] ?? null,
+            'password' => Hash::make($data['password']),
+            'user_type' => UserType::Student->value,
+        ]);
 
+        return $user;
+    }
+
+    /**
+     * Cria um novo usuário por um admin (rota protegida).
+     * Admin/SuperAdmin podem criar: Student, Admin, Driver.
+     * SuperAdmin não pode ser criado por esta rota.
+     */
+    public function createUserByAdmin(array $data): User
+    {
         $requestedType = UserType::from($data['user_type']);
 
-        // Prevent creating super-admin here
+        // Prevent creating super-admin
         if ($requestedType === UserType::SuperAdmin) {
             throw ValidationException::withMessages(['user_type' => 'Não é permitido criar Super Administrador por essa rota.']);
         }
 
-        // Guests can only create students
-        if (!$creator) {
-            if (!$requestedType->canBeCreatedPublicly()) {
-                throw ValidationException::withMessages(['user_type' => 'Visitantes só podem se registrar como Estudante.']);
-            }
-        } else {
-            if ($creator->user_type === UserType::Driver) {
-                throw ValidationException::withMessages(['authorization' => 'Motoristas não podem criar usuários.']);
-            }
-
-            if (in_array($requestedType, UserType::adminOnlyTypes(), true) && ! $creator->canCreateAdminUsers()) {
-                throw ValidationException::withMessages(['user_type' => 'Apenas administradores podem criar usuários desse tipo.']);
-            }
-        }
-
         $user = User::query()->create([
-            ...$data,
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'cpf' => $data['cpf'],
+            'rg' => $data['rg'],
+            'phone_contact' => $data['phone_contact'],
+            'profile_picture_url' => $data['profile_picture_url'] ?? null,
             'password' => Hash::make($data['password']),
             'user_type' => $requestedType->value,
         ]);
