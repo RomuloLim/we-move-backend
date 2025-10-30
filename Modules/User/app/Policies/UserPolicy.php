@@ -2,8 +2,7 @@
 
 namespace Modules\User\Policies;
 
-use Modules\User\Enums\Permission;
-use Modules\User\Enums\UserType;
+use Modules\User\Enums\{Permission, UserType};
 use Modules\User\Models\User;
 
 /**

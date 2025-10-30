@@ -3,12 +3,10 @@
 namespace Modules\User\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Validation\ValidationException;
 use Modules\User\Enums\UserType;
-use Modules\User\Http\Requests\CreateUserByAdminRequest;
-use Modules\User\Http\Requests\RegisterStudentRequest;
+use Modules\User\Http\Requests\{CreateUserByAdminRequest, RegisterStudentRequest};
 use Modules\User\Http\Resources\UserResource;
 use Modules\User\Services\UserService;
 
@@ -23,7 +21,6 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        // Use policy for authorization
         if (! $user || ! $user->can('viewAny', \Modules\User\Models\User::class)) {
             return response()->json([
                 'message' => 'Acesso negado. Apenas administradores podem listar usuários.',
@@ -107,7 +104,6 @@ class UserController extends Controller
 
         $newType = UserType::from($request->input('user_type'));
 
-        // Use policy for authorization
         if (! $currentUser || ! $currentUser->can('updateUserType', [$user, $newType])) {
             return response()->json([
                 'message' => 'Acesso negado.',

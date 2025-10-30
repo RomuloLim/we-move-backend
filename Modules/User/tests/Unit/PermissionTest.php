@@ -2,8 +2,7 @@
 
 namespace Modules\User\Tests\Unit;
 
-use Modules\User\Enums\Permission;
-use Modules\User\Enums\UserType;
+use Modules\User\Enums\{Permission, UserType};
 use Tests\TestCase;
 
 class PermissionTest extends TestCase
