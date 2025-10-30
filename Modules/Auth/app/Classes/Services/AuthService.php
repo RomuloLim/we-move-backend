@@ -3,8 +3,7 @@
 namespace Modules\Auth\Classes\Services;
 
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\{Auth, Hash};
 use Modules\User\Models\User;
 
 class AuthService
@@ -47,7 +46,6 @@ class AuthService
             'password' => Hash::make($data['password']),
             'user_type' => $data['user_type'] ?? 'student',
         ]);
-
 
         // Create a new token
         $token = $user->createToken('auth_token')->plainTextToken;

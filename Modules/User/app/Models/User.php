@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Modules\User\Enums\UserType;
+use Modules\User\Enums\{Permission, UserType};
 
 class User extends Authenticatable
 {
@@ -97,5 +97,51 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return in_array($this->user_type, [UserType::Admin, UserType::SuperAdmin]);
+    }
+
+    /**
+     * Verifica se o usuário tem uma permissão específica.
+     */
+    public function hasPermission(Permission $permission): bool
+    {
+        $userPermissions = Permission::forUserType($this->user_type);
+
+        return in_array($permission, $userPermissions);
+    }
+
+    /**
+     * Verifica se o usuário tem alguma das permissões especificadas.
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if ($this->hasPermission($permission)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Verifica se o usuário tem todas as permissões especificadas.
+     */
+    public function hasAllPermissions(array $permissions): bool
+    {
+        foreach ($permissions as $permission) {
+            if (! $this->hasPermission($permission)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Retorna todas as permissões do usuário.
+     */
+    public function getPermissions(): array
+    {
+        return Permission::forUserType($this->user_type);
     }
 }

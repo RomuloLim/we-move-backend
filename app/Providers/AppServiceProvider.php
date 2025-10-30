@@ -3,11 +3,9 @@
 namespace App\Providers;
 
 use Dedoc\Scramble\Scramble;
-use Dedoc\Scramble\Support\Generator\OpenApi;
-use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Dedoc\Scramble\Support\Generator\{OpenApi, SecurityScheme};
 use Illuminate\Routing\Route;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
+use Illuminate\Support\{ServiceProvider, Str};
 
 class AppServiceProvider extends ServiceProvider
 {

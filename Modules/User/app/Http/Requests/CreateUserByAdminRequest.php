@@ -5,6 +5,7 @@ namespace Modules\User\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 use Modules\User\Enums\UserType;
+use Modules\User\Models\User;
 
 class CreateUserByAdminRequest extends FormRequest
 {
@@ -55,21 +56,22 @@ class CreateUserByAdminRequest extends FormRequest
     {
         $user = $this->user();
 
-        if (! $user->isAdmin()) {
+        if (! $user) {
             return false;
         }
 
-        $requestedType = $this->input('user_type');
-
-        if ($requestedType === UserType::SuperAdmin->value) {
+        // Check if user can create users in general
+        if (! $user->can('create', User::class)) {
             return false;
         }
 
-        if ($requestedType === UserType::Driver->value && ! $user->canCreateAdminUsers()) {
+        // Check if user can create this specific user type
+        $requestedType = UserType::tryFrom($this->input('user_type'));
+
+        if (! $requestedType) {
             return false;
         }
 
-        return true;
+        return $user->can('createUserType', [User::class, $requestedType]);
     }
 }
-

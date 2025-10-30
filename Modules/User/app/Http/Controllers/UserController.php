@@ -3,12 +3,10 @@
 namespace Modules\User\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Validation\ValidationException;
 use Modules\User\Enums\UserType;
-use Modules\User\Http\Requests\CreateUserByAdminRequest;
-use Modules\User\Http\Requests\RegisterStudentRequest;
+use Modules\User\Http\Requests\{CreateUserByAdminRequest, RegisterStudentRequest};
 use Modules\User\Http\Resources\UserResource;
 use Modules\User\Services\UserService;
 
@@ -23,7 +21,7 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        if (! $user?->isAdmin()) {
+        if (! $user || ! $user->can('viewAny', \Modules\User\Models\User::class)) {
             return response()->json([
                 'message' => 'Acesso negado. Apenas administradores podem listar usuários.',
             ], 403);
@@ -97,25 +95,26 @@ class UserController extends Controller
      */
     public function updateType(Request $request, int $userId): JsonResponse
     {
-            $currentUser = $request->user();
-            if (! $currentUser?->isAdmin()) {
-                return response()->json([
-                    'message' => 'Acesso negado.',
-                ], 403);
-            }
+        $currentUser = $request->user();
+        $user = \Modules\User\Models\User::findOrFail($userId);
 
-            $request->validate([
-                'user_type' => ['required', 'string', 'in:admin,student,driver'],
-            ]);
+        $request->validate([
+            'user_type' => ['required', 'string', 'in:admin,student,driver'],
+        ]);
 
-            $user = \Modules\User\Models\User::findOrFail($userId);
-            $newType = UserType::from($request->input('user_type'));
+        $newType = UserType::from($request->input('user_type'));
 
-            $updatedUser = $this->userService->updateUserType($user, $newType, $currentUser);
-
+        if (! $currentUser || ! $currentUser->can('updateUserType', [$user, $newType])) {
             return response()->json([
-                'message' => 'Tipo de usuário atualizado com sucesso.',
-                'data' => new UserResource($updatedUser),
-            ]);
+                'message' => 'Acesso negado.',
+            ], 403);
         }
+
+        $updatedUser = $this->userService->updateUserType($user, $newType, $currentUser);
+
+        return response()->json([
+            'message' => 'Tipo de usuário atualizado com sucesso.',
+            'data' => new UserResource($updatedUser),
+        ]);
+    }
 }

@@ -4,8 +4,7 @@ namespace Modules\Auth\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Http\{JsonResponse, Request};
 use Modules\Auth\Classes\Services\AuthService;
 use Modules\Auth\Http\Requests\LoginRequest;
 use Modules\Auth\Resources\UserResource;
