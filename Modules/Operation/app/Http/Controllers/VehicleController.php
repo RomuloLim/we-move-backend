@@ -33,7 +33,7 @@ class VehicleController extends Controller
 
     public function store(VehicleFormRequest $request): JsonResponse
     {
-        $vehicle = $this->service->create($request->validated());
+        $vehicle = $this->service->create($request->toDto());
 
         return VehicleResource::make($vehicle)
             ->response()
@@ -42,7 +42,7 @@ class VehicleController extends Controller
 
     public function update(VehicleFormRequest $request, int $id): JsonResponse
     {
-        $vehicle = $this->service->update($id, $request->validated());
+        $vehicle = $this->service->update($id, $request->toDto());
 
         if (!$vehicle) {
             return response()->json(['message' => 'Veículo não encontrado.'], StatusCode::HTTP_NOT_FOUND);
