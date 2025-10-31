@@ -3,60 +3,39 @@
 namespace Modules\User\Tests\Unit;
 
 use Modules\User\Enums\{Permission, UserType};
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class PermissionTest extends TestCase
 {
-    public function test_permission_enum_values(): void
+    #[DataProvider('permissionProfileCases')]
+    public function test_permission_profile_cases(UserType $userType, array $expectedPermissions): void
     {
-        $permissions = [
-            'view-users',
-            'create-users',
-            'update-users',
-            'delete-users',
-            'update-user-type',
-            'create-admin-users',
-            'create-super-admin',
+        $permissions = Permission::forUserType($userType);
+        $this->assertEqualsCanonicalizing($expectedPermissions, $permissions);
+    }
+
+    public static function permissionProfileCases(): \Generator
+    {
+        yield 'Super Admin user type' => [
+            UserType::SuperAdmin,
+            Permission::superAdminPermissions(),
         ];
 
-        $enumValues = array_map(fn ($p) => $p->value, Permission::cases());
+        yield 'Admin user type' => [
+            UserType::Admin,
+            Permission::adminPermissions(),
+        ];
 
-        $this->assertEquals($permissions, $enumValues);
-    }
+        yield 'Driver user type' => [
+            UserType::Driver,
+            Permission::driverPermissions(),
+        ];
 
-    public function test_super_admin_has_all_permissions(): void
-    {
-        $permissions = Permission::forUserType(UserType::SuperAdmin);
-
-        $this->assertCount(7, $permissions);
-        $this->assertContains(Permission::ViewUsers, $permissions);
-        $this->assertContains(Permission::CreateUsers, $permissions);
-        $this->assertContains(Permission::UpdateUsers, $permissions);
-        $this->assertContains(Permission::DeleteUsers, $permissions);
-        $this->assertContains(Permission::UpdateUserType, $permissions);
-        $this->assertContains(Permission::CreateAdminUsers, $permissions);
-        $this->assertContains(Permission::CreateSuperAdmin, $permissions);
-    }
-
-    public function test_admin_has_management_permissions_except_super_admin(): void
-    {
-        $permissions = Permission::forUserType(UserType::Admin);
-
-        $this->assertCount(6, $permissions);
-        $this->assertContains(Permission::ViewUsers, $permissions);
-        $this->assertContains(Permission::CreateUsers, $permissions);
-        $this->assertContains(Permission::UpdateUsers, $permissions);
-        $this->assertContains(Permission::DeleteUsers, $permissions);
-        $this->assertContains(Permission::UpdateUserType, $permissions);
-        $this->assertContains(Permission::CreateAdminUsers, $permissions);
-        $this->assertNotContains(Permission::CreateSuperAdmin, $permissions);
-    }
-
-    public function test_driver_has_no_permissions(): void
-    {
-        $permissions = Permission::forUserType(UserType::Driver);
-
-        $this->assertEmpty($permissions);
+        yield 'Student user type' => [
+            UserType::Student,
+            Permission::studentPermissions(),
+        ];
     }
 
     public function test_student_has_no_permissions(): void
