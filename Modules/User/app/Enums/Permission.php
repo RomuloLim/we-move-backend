@@ -21,6 +21,12 @@ enum Permission: string
     case ViewVehicles = 'view-vehicles';
     case ManageVehicles = 'manage-vehicles';
 
+    // Institution and Course Permissions
+    case ViewInstitutions = 'view-institutions';
+    case ManageInstitutions = 'manage-institutions';
+    case ViewCourses = 'view-courses';
+    case ManageCourses = 'manage-courses';
+
     /**
      * Get all permissions for a given user type.
      */
@@ -50,6 +56,10 @@ enum Permission: string
             self::CreateAdminUsers,
             self::ViewVehicles,
             self::ManageVehicles,
+            self::ViewInstitutions,
+            self::ManageInstitutions,
+            self::ViewCourses,
+            self::ManageCourses,
         ];
     }
 
@@ -62,7 +72,10 @@ enum Permission: string
 
     public static function studentPermissions(): array
     {
-        return [];
+        return [
+            self::ViewInstitutions,
+            self::ViewCourses,
+        ];
     }
 
     /**
@@ -80,6 +93,10 @@ enum Permission: string
             self::CreateSuperAdmin => 'Criar Super Administrador',
             self::ViewVehicles => 'Visualizar veículos',
             self::ManageVehicles => 'Gerenciar veículos',
+            self::ViewInstitutions => 'Visualizar instituições',
+            self::ManageInstitutions => 'Gerenciar instituições',
+            self::ViewCourses => 'Visualizar cursos',
+            self::ManageCourses => 'Gerenciar cursos',
         };
     }
 }

@@ -38,11 +38,13 @@ class PermissionTest extends TestCase
         ];
     }
 
-    public function test_student_has_no_permissions(): void
+    public function test_student_has_view_only_permissions(): void
     {
         $permissions = Permission::forUserType(UserType::Student);
 
-        $this->assertEmpty($permissions);
+        $this->assertCount(2, $permissions);
+        $this->assertContains(Permission::ViewInstitutions, $permissions);
+        $this->assertContains(Permission::ViewCourses, $permissions);
     }
 
     public function test_permission_labels(): void
