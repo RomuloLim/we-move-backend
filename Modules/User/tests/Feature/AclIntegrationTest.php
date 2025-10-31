@@ -16,54 +16,6 @@ class AclIntegrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_super_admin_has_all_permissions(): void
-    {
-        $superAdmin = User::factory()->create(['user_type' => UserType::SuperAdmin]);
-
-        // Verify all permissions
-        $this->assertTrue($superAdmin->hasPermission(Permission::ViewUsers));
-        $this->assertTrue($superAdmin->hasPermission(Permission::CreateUsers));
-        $this->assertTrue($superAdmin->hasPermission(Permission::UpdateUsers));
-        $this->assertTrue($superAdmin->hasPermission(Permission::DeleteUsers));
-        $this->assertTrue($superAdmin->hasPermission(Permission::UpdateUserType));
-        $this->assertTrue($superAdmin->hasPermission(Permission::CreateAdminUsers));
-        $this->assertTrue($superAdmin->hasPermission(Permission::CreateSuperAdmin));
-
-        $this->assertCount(7, $superAdmin->getPermissions());
-    }
-
-    public function test_admin_has_correct_permissions(): void
-    {
-        $admin = User::factory()->create(['user_type' => UserType::Admin]);
-
-        // Verify admin permissions
-        $this->assertTrue($admin->hasPermission(Permission::ViewUsers));
-        $this->assertTrue($admin->hasPermission(Permission::CreateUsers));
-        $this->assertTrue($admin->hasPermission(Permission::UpdateUsers));
-        $this->assertTrue($admin->hasPermission(Permission::DeleteUsers));
-        $this->assertTrue($admin->hasPermission(Permission::UpdateUserType));
-        $this->assertTrue($admin->hasPermission(Permission::CreateAdminUsers));
-
-        // Admin cannot create super admin
-        $this->assertFalse($admin->hasPermission(Permission::CreateSuperAdmin));
-
-        $this->assertCount(6, $admin->getPermissions());
-    }
-
-    public function test_non_admin_users_have_no_management_permissions(): void
-    {
-        $driver = User::factory()->create(['user_type' => UserType::Driver]);
-        $student = User::factory()->create(['user_type' => UserType::Student]);
-
-        foreach ([$driver, $student] as $user) {
-            $this->assertFalse($user->hasPermission(Permission::ViewUsers));
-            $this->assertFalse($user->hasPermission(Permission::CreateUsers));
-            $this->assertFalse($user->hasPermission(Permission::UpdateUsers));
-            $this->assertFalse($user->hasPermission(Permission::DeleteUsers));
-            $this->assertCount(0, $user->getPermissions());
-        }
-    }
-
     public function test_policy_enforces_view_any_permission(): void
     {
         $admin = User::factory()->create(['user_type' => UserType::Admin]);

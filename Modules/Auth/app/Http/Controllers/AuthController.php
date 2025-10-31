@@ -51,7 +51,7 @@ class AuthController extends Controller
         try {
             $success = $this->authService->logout();
 
-            if (! $success) {
+            if (!$success) {
                 return response()->json([
                     'message' => 'Usuário não autenticado.',
                 ], 401);
@@ -76,7 +76,7 @@ class AuthController extends Controller
         try {
             $success = $this->authService->logoutAll();
 
-            if (! $success) {
+            if (!$success) {
                 return response()->json([
                     'message' => 'Usuário não autenticado.',
                 ], 401);
@@ -101,7 +101,7 @@ class AuthController extends Controller
         try {
             $user = $request->user();
 
-            if (! $user) {
+            if (!$user) {
                 return response()->json([
                     'message' => 'Usuário não autenticado.',
                 ], 401);

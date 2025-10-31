@@ -17,32 +17,52 @@ enum Permission: string
     case CreateAdminUsers = 'create-admin-users';
     case CreateSuperAdmin = 'create-super-admin';
 
+    // Vehicle Permissions
+    case ViewVehicles = 'view-vehicles';
+    case ManageVehicles = 'manage-vehicles';
+
     /**
      * Get all permissions for a given user type.
      */
     public static function forUserType(UserType $userType): array
     {
         return match ($userType) {
-            UserType::SuperAdmin => [
-                self::ViewUsers,
-                self::CreateUsers,
-                self::UpdateUsers,
-                self::DeleteUsers,
-                self::UpdateUserType,
-                self::CreateAdminUsers,
-                self::CreateSuperAdmin,
-            ],
-            UserType::Admin => [
-                self::ViewUsers,
-                self::CreateUsers,
-                self::UpdateUsers,
-                self::DeleteUsers,
-                self::UpdateUserType,
-                self::CreateAdminUsers,
-            ],
-            UserType::Driver => [],
-            UserType::Student => [],
+            UserType::SuperAdmin => self::superAdminPermissions(),
+            UserType::Admin => self::adminPermissions(),
+            UserType::Driver => self::driverPermissions(),
+            UserType::Student => self::studentPermissions(),
         };
+    }
+
+    public static function superAdminPermissions(): array
+    {
+        return self::cases();
+    }
+
+    public static function adminPermissions(): array
+    {
+        return [
+            self::ViewUsers,
+            self::CreateUsers,
+            self::UpdateUsers,
+            self::DeleteUsers,
+            self::UpdateUserType,
+            self::CreateAdminUsers,
+            self::ViewVehicles,
+            self::ManageVehicles,
+        ];
+    }
+
+    public static function driverPermissions(): array
+    {
+        return [
+            self::ViewVehicles,
+        ];
+    }
+
+    public static function studentPermissions(): array
+    {
+        return [];
     }
 
     /**
@@ -58,6 +78,8 @@ enum Permission: string
             self::UpdateUserType => 'Atualizar tipo de usuário',
             self::CreateAdminUsers => 'Criar usuários Admin/Driver',
             self::CreateSuperAdmin => 'Criar Super Administrador',
+            self::ViewVehicles => 'Visualizar veículos',
+            self::ManageVehicles => 'Gerenciar veículos',
         };
     }
 }

@@ -47,7 +47,7 @@ class UserPolicy
     public function createUserType(User $user, UserType $userType): bool
     {
         // Must have basic create permission
-        if (! $user->hasPermission(Permission::CreateUsers)) {
+        if (!$user->hasPermission(Permission::CreateUsers)) {
             return false;
         }
 
@@ -90,7 +90,7 @@ class UserPolicy
         }
 
         // Need UpdateUserType permission
-        if (! $user->hasPermission(Permission::UpdateUserType)) {
+        if (!$user->hasPermission(Permission::UpdateUserType)) {
             return false;
         }
 
@@ -100,7 +100,7 @@ class UserPolicy
         }
 
         // Cannot promote to Super Admin without special permission
-        if ($newType === UserType::SuperAdmin && ! $user->hasPermission(Permission::CreateSuperAdmin)) {
+        if ($newType === UserType::SuperAdmin && !$user->hasPermission(Permission::CreateSuperAdmin)) {
             return false;
         }
 

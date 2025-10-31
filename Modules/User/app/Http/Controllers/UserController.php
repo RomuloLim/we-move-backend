@@ -21,7 +21,7 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        if (! $user || ! $user->can('viewAny', \Modules\User\Models\User::class)) {
+        if (!$user || !$user->can('viewAny', \Modules\User\Models\User::class)) {
             return response()->json([
                 'message' => 'Acesso negado. Apenas administradores podem listar usuários.',
             ], 403);
@@ -104,7 +104,7 @@ class UserController extends Controller
 
         $newType = UserType::from($request->input('user_type'));
 
-        if (! $currentUser || ! $currentUser->can('updateUserType', [$user, $newType])) {
+        if (!$currentUser || !$currentUser->can('updateUserType', [$user, $newType])) {
             return response()->json([
                 'message' => 'Acesso negado.',
             ], 403);

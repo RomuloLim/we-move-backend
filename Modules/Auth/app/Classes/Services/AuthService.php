@@ -17,7 +17,7 @@ class AuthService
     {
         $user = User::query()->where('email', $credentials['email'])->first();
 
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
             throw new AuthenticationException('Credenciais inválidas.');
         }
 
@@ -64,7 +64,7 @@ class AuthService
     {
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             return false;
         }
 
@@ -81,7 +81,7 @@ class AuthService
     {
         $user = Auth::user();
 
-        if (! $user) {
+        if (!$user) {
             return false;
         }
 

@@ -56,19 +56,19 @@ class CreateUserByAdminRequest extends FormRequest
     {
         $user = $this->user();
 
-        if (! $user) {
+        if (!$user) {
             return false;
         }
 
         // Check if user can create users in general
-        if (! $user->can('create', User::class)) {
+        if (!$user->can('create', User::class)) {
             return false;
         }
 
         // Check if user can create this specific user type
         $requestedType = UserType::tryFrom($this->input('user_type'));
 
-        if (! $requestedType) {
+        if (!$requestedType) {
             return false;
         }
 
