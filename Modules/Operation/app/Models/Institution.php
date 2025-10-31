@@ -5,6 +5,7 @@ namespace Modules\Operation\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Modules\Operation\Database\Factories\InstitutionFactory;
 
 class Institution extends Model
 {
@@ -31,5 +32,13 @@ class Institution extends Model
     public function courses(): BelongsToMany
     {
         return $this->belongsToMany(Course::class, 'institution_courses');
+    }
+
+    /**
+     * Get the factory for the model.
+     */
+    protected static function newFactory(): InstitutionFactory
+    {
+        return InstitutionFactory::new();
     }
 }

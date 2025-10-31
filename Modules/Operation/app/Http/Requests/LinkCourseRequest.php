@@ -9,16 +9,19 @@ class LinkCourseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'course_id' => ['required', 'integer', 'exists:courses,id'],
+            'courses_ids' => ['required', 'array', 'exists:courses,id'],
+            'courses_ids.*' => ['required', 'integer'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'course_id.required' => 'O ID do curso é obrigatório.',
-            'course_id.integer' => 'O ID do curso deve ser um número inteiro.',
-            'course_id.exists' => 'O curso não existe.',
+            'courses_ids.required' => 'O campo cursos é obrigatório.',
+            'courses_ids.array' => 'O campo cursos deve ser um array.',
+            'courses_ids.exists' => 'Um ou mais cursos não existem.',
+            'courses_ids.*.integer' => 'O ID do curso deve ser um número inteiro.',
+            'courses_ids.*.exists' => 'O curso não existe.',
         ];
     }
 }

@@ -15,18 +15,15 @@ class InstitutionCourseController extends Controller
     public function linkCourse(LinkCourseRequest $request, int $institutionId): JsonResponse
     {
         $validated = $request->validated();
-        $link = $this->service->linkCourse($institutionId, $validated['course_id']);
 
-        if (!$link) {
-            return response()->json(['message' => 'Erro ao vincular curso.'], StatusCode::HTTP_BAD_REQUEST);
-        }
+        $this->service->linkCourse($institutionId, $validated['courses_ids']);
 
-        return response()->json(['message' => 'Curso vinculado com sucesso.'], StatusCode::HTTP_CREATED);
+        return response()->json(['message' => 'Cursos vinculados com sucesso.'], StatusCode::HTTP_CREATED);
     }
 
-    public function unlinkCourse(int $institutionId, int $courseId): JsonResponse
+    public function unlinkCourse(LinkCourseRequest $request, int $institutionId): JsonResponse
     {
-        $deleted = $this->service->unlinkCourse($institutionId, $courseId);
+        $deleted = $this->service->unlinkCourse($institutionId, $request->input('courses_ids', []));
 
         if (!$deleted) {
             return response()->json(['message' => 'Vínculo não encontrado.'], StatusCode::HTTP_NOT_FOUND);

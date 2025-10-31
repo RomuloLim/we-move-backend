@@ -20,7 +20,12 @@ class InstitutionRepository implements InstitutionRepositoryInterface
 
     public function find(int $id): ?Institution
     {
-        return Institution::find($id);
+        return Institution::query()->find($id);
+    }
+
+    public function findOrFail(int $id): ?Institution
+    {
+        return Institution::query()->findOrFail($id);
     }
 
     public function create(InstitutionDto $data): Institution

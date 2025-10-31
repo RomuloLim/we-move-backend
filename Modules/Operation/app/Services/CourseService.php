@@ -4,8 +4,7 @@ namespace Modules\Operation\Services;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Modules\Operation\DTOs\CourseDto;
-use Modules\Operation\Models\Course;
-use Modules\Operation\Models\Institution;
+use Modules\Operation\Models\{Course, Institution};
 use Modules\Operation\Repositories\Course\CourseRepositoryInterface;
 
 class CourseService implements CourseServiceInterface
@@ -45,11 +44,11 @@ class CourseService implements CourseServiceInterface
     public function getByInstitutionId(int $institutionId): array
     {
         $institution = Institution::find($institutionId);
-        
+
         if (!$institution) {
             return [];
         }
 
-        return $institution->courses()->get()->toArray();
+        return $institution->courses()->get()->all();
     }
 }

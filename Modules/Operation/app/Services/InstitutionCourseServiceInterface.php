@@ -2,10 +2,22 @@
 
 namespace Modules\Operation\Services;
 
-use Modules\Operation\Models\InstitutionCourse;
+use Illuminate\Support\Collection;
+use Modules\Operation\DTOs\CourseDto;
 
 interface InstitutionCourseServiceInterface
 {
-    public function linkCourse(int $institutionId, int $courseId): ?InstitutionCourse;
-    public function unlinkCourse(int $institutionId, int $courseId): bool;
+    /**
+     * @param int $institutionId
+     * @param array<int> $coursesIds
+     * @return Collection<int, CourseDto>
+     */
+    public function linkCourse(int $institutionId, array $coursesIds): Collection;
+
+    /**
+     * @param int $institutionId
+     * @param array<int> $coursesIds
+     * @return bool
+     */
+    public function unlinkCourse(int $institutionId, array $coursesIds): bool;
 }

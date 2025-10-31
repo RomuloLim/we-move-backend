@@ -1,10 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Operation\Http\Controllers\CourseController;
-use Modules\Operation\Http\Controllers\InstitutionController;
-use Modules\Operation\Http\Controllers\InstitutionCourseController;
-use Modules\Operation\Http\Controllers\VehicleController;
+use Modules\Operation\Http\Controllers\{CourseController, InstitutionController, InstitutionCourseController, VehicleController};
 use Modules\User\Enums\Permission;
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
@@ -54,7 +51,7 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('institutions/{institution}/courses', [InstitutionCourseController::class, 'linkCourse'])
             ->name('operation.institutions.courses.link');
 
-        Route::delete('institutions/{institution}/courses/{course}', [InstitutionCourseController::class, 'unlinkCourse'])
+        Route::delete('institutions/{institution}/courses/unlink', [InstitutionCourseController::class, 'unlinkCourse'])
             ->name('operation.institutions.courses.unlink');
     });
 
