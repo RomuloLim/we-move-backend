@@ -34,6 +34,10 @@ class OperationServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        $this->app->register(VehicleServiceProvider::class);
+        $this->app->register(InstitutionServiceProvider::class);
+        $this->app->register(CourseServiceProvider::class);
+        $this->app->register(InstitutionCourseServiceProvider::class);
     }
 
     /**
