@@ -4,6 +4,7 @@ namespace Modules\Operation\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Modules\Operation\DTOs\VehicleDto;
 
 class VehicleFormRequest extends FormRequest
 {
@@ -33,5 +34,16 @@ class VehicleFormRequest extends FormRequest
             'capacity.integer' => 'A capacidade deve ser um número inteiro.',
             'capacity.min' => 'A capacidade deve ser maior que zero.',
         ];
+    }
+
+    public function toDto(): VehicleDto
+    {
+        $validated = $this->validated();
+
+        return new VehicleDto(
+            license_plate: $validated['license_plate'],
+            model: $validated['model'],
+            capacity: $validated['capacity'],
+        );
     }
 }
