@@ -42,9 +42,10 @@ class PermissionTest extends TestCase
     {
         $permissions = Permission::forUserType(UserType::Student);
 
-        $this->assertCount(2, $permissions);
+        $this->assertCount(3, $permissions);
         $this->assertContains(Permission::ViewInstitutions, $permissions);
         $this->assertContains(Permission::ViewCourses, $permissions);
+        $this->assertContains(Permission::SubmitRequisition, $permissions);
     }
 
     public function test_permission_labels(): void

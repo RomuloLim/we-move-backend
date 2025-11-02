@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Operation\Http\Controllers\{CourseController, InstitutionController, InstitutionCourseController, VehicleController};
+use Modules\Operation\Http\Controllers\{CourseController, InstitutionController, InstitutionCourseController, StudentRequisitionController, VehicleController};
 use Modules\User\Enums\Permission;
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
@@ -78,5 +78,12 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         Route::delete('courses/{course}', [CourseController::class, 'destroy'])
             ->name('operation.courses.destroy');
+    });
+
+    // Student Requisition routes
+    $submitRequisitionPermission = Permission::SubmitRequisition->value;
+    Route::middleware("permission:{$submitRequisitionPermission}")->group(function () {
+        Route::post('requisitions', [StudentRequisitionController::class, 'store'])
+            ->name('operation.requisitions.store');
     });
 });

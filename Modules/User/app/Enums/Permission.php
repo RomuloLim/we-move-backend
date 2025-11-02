@@ -27,6 +27,11 @@ enum Permission: string
     case ViewCourses = 'view-courses';
     case ManageCourses = 'manage-courses';
 
+    // Student Requisition Permissions
+    case SubmitRequisition = 'submit-requisition';
+    case ViewRequisitions = 'view-requisitions';
+    case ManageRequisitions = 'manage-requisitions';
+
     /**
      * Get all permissions for a given user type.
      */
@@ -60,6 +65,8 @@ enum Permission: string
             self::ManageInstitutions,
             self::ViewCourses,
             self::ManageCourses,
+            self::ViewRequisitions,
+            self::ManageRequisitions,
         ];
     }
 
@@ -75,6 +82,7 @@ enum Permission: string
         return [
             self::ViewInstitutions,
             self::ViewCourses,
+            self::SubmitRequisition,
         ];
     }
 
@@ -97,6 +105,9 @@ enum Permission: string
             self::ManageInstitutions => 'Gerenciar instituições',
             self::ViewCourses => 'Visualizar cursos',
             self::ManageCourses => 'Gerenciar cursos',
+            self::SubmitRequisition => 'Enviar solicitação',
+            self::ViewRequisitions => 'Visualizar solicitações',
+            self::ManageRequisitions => 'Gerenciar solicitações',
         };
     }
 }
