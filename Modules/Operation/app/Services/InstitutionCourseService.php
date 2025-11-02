@@ -8,9 +8,7 @@ use Modules\Operation\Repositories\Institution\InstitutionRepositoryInterface;
 
 class InstitutionCourseService implements InstitutionCourseServiceInterface
 {
-    public function __construct(private readonly InstitutionRepositoryInterface $institutionRepository)
-    {
-    }
+    public function __construct(private readonly InstitutionRepositoryInterface $institutionRepository) {}
 
     public function linkCourse(int $institutionId, array $coursesIds): Collection
     {

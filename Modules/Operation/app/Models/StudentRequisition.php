@@ -4,11 +4,9 @@ namespace Modules\Operation\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany};
 use Modules\Operation\Database\Factories\StudentRequisitionFactory;
-use Modules\Operation\Enums\AtuationForm;
-use Modules\Operation\Enums\RequisitionStatus;
+use Modules\Operation\Enums\{AtuationForm, RequisitionStatus};
 use Modules\User\Models\User;
 
 class StudentRequisition extends Model

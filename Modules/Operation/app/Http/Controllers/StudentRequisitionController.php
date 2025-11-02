@@ -4,13 +4,10 @@ namespace Modules\Operation\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Modules\Operation\Enums\DocumentType;
-use Modules\Operation\Enums\RequisitionStatus;
+use Illuminate\Support\Facades\{DB, Storage};
+use Modules\Operation\Enums\{DocumentType, RequisitionStatus};
 use Modules\Operation\Http\Requests\StudentRequisitionRequest;
-use Modules\Operation\Models\Document;
-use Modules\Operation\Models\StudentRequisition;
+use Modules\Operation\Models\{Document, StudentRequisition};
 use Symfony\Component\HttpFoundation\Response as StatusCode;
 
 class StudentRequisitionController extends Controller

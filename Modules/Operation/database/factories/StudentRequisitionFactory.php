@@ -3,11 +3,8 @@
 namespace Modules\Operation\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\Operation\Enums\AtuationForm;
-use Modules\Operation\Enums\RequisitionStatus;
-use Modules\Operation\Models\Course;
-use Modules\Operation\Models\Institution;
-use Modules\Operation\Models\StudentRequisition;
+use Modules\Operation\Enums\{AtuationForm, RequisitionStatus};
+use Modules\Operation\Models\{Course, Institution, StudentRequisition};
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
 

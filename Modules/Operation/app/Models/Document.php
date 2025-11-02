@@ -4,8 +4,7 @@ namespace Modules\Operation\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany};
 use Modules\Operation\Enums\DocumentType;
 use Modules\User\Models\User;
 

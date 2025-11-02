@@ -28,7 +28,7 @@ class StudentRequisitionRequest extends FormRequest
             'institution_id' => ['required', 'exists:institutions,id'],
             'course_id' => ['required', 'exists:courses,id'],
             'atuation_form' => ['required', Rule::enum(AtuationForm::class)],
-            
+
             // Documents as file uploads
             'residency_proof' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
             'identification_document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
