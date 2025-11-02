@@ -21,4 +21,17 @@ enum DocumentType: string
             self::ProfilePicture => 'Foto 3x4',
         };
     }
+
+    /**
+     * Get the mapping of form field names to document types.
+     */
+    public static function getFormFieldMapping(): array
+    {
+        return [
+            'residency_proof' => self::ResidencyProof,
+            'identification_document' => self::IdentificationDocument,
+            'profile_picture' => self::ProfilePicture,
+            'enrollment_proof' => self::EnrollmentProof,
+        ];
+    }
 }

@@ -40,12 +40,7 @@ class StudentRequisitionController extends Controller
 
             // Store documents
             $documents = [];
-            $documentTypes = [
-                'residency_proof' => DocumentType::ResidencyProof,
-                'identification_document' => DocumentType::IdentificationDocument,
-                'profile_picture' => DocumentType::ProfilePicture,
-                'enrollment_proof' => DocumentType::EnrollmentProof,
-            ];
+            $documentTypes = DocumentType::getFormFieldMapping();
 
             foreach ($documentTypes as $fieldName => $documentType) {
                 if ($request->hasFile($fieldName)) {
@@ -109,9 +104,15 @@ class StudentRequisitionController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json([
-                'message' => 'Erro ao processar solicitação.',
+            // Log the detailed error for debugging
+            \Log::error('Error processing student requisition', [
+                'user_id' => $user->id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'message' => 'Erro ao processar solicitação. Por favor, tente novamente mais tarde.',
             ], StatusCode::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
