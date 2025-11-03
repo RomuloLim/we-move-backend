@@ -17,6 +17,7 @@ return new class extends Migration
             $table->enum('type', ['enrollment_proof', 'residency_proof', 'identification_document', 'profile_picture']);
             $table->string('file_url', 255);
             $table->timestamp('uploaded_at')->useCurrent();
+            $table->timestamps();
         });
     }
 

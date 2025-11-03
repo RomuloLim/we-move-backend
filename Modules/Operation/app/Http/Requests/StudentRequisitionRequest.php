@@ -4,7 +4,8 @@ namespace Modules\Operation\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Modules\Operation\Enums\AtuationForm;
+use Modules\Operation\DTOs\StudentRequisitionDto;
+use Modules\Operation\Enums\{AtuationForm, RequisitionStatus};
 
 class StudentRequisitionRequest extends FormRequest
 {
@@ -66,5 +67,28 @@ class StudentRequisitionRequest extends FormRequest
             '*.mimes' => 'O arquivo deve ser do tipo: :values.',
             '*.max' => 'O arquivo não pode ser maior que :max KB.',
         ];
+    }
+
+    public function toDto(): StudentRequisitionDto
+    {
+        $user = $this->user();
+
+        return new StudentRequisitionDto(
+            student_id: $user->id,
+            semester: $this->input('semester'),
+            status: RequisitionStatus::Pending,
+            street_name: $this->input('street_name'),
+            house_number: $this->input('house_number'),
+            neighborhood: $this->input('neighborhood'),
+            city: $this->input('city'),
+            phone_contact: $this->input('phone_contact'),
+            birth_date: $this->date('birth_date'),
+            institution_email: $this->input('institution_email'),
+            institution_registration: $this->input('institution_registration'),
+            institution_id: $this->input('institution_id'),
+            course_id: $this->input('course_id'),
+            atuation_form: AtuationForm::from($this->input('atuation_form')),
+        );
+
     }
 }
