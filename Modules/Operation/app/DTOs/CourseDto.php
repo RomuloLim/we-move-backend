@@ -12,7 +12,7 @@ class CourseDto
 
     public static function collection(array $courses): Collection
     {
-        $dtos = array_map(fn($course) => new self(
+        $dtos = array_map(fn ($course) => new self(
             name: $course['name'],
         ), $courses);
 

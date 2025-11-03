@@ -33,6 +33,7 @@ class InstitutionCourseLinkingTest extends TestCase
         ]);
 
         $response->assertCreated();
+
         foreach ($coursesIds as $courseId) {
             $this->assertDatabaseHas('institution_courses', [
                 'institution_id' => $institution->id,
@@ -56,6 +57,7 @@ class InstitutionCourseLinkingTest extends TestCase
         ]);
 
         $response->assertOk();
+
         foreach ($coursesIds as $courseId) {
             $this->assertDatabaseMissing('institution_courses', [
                 'institution_id' => $institution->id,
@@ -113,6 +115,7 @@ class InstitutionCourseLinkingTest extends TestCase
         ]);
 
         $response->assertCreated();
+
         foreach ($coursesIds as $courseId) {
             $this->assertDatabaseHas('institution_courses', [
                 'institution_id' => $institution->id,

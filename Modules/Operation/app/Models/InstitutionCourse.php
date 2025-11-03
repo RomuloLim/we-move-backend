@@ -2,12 +2,12 @@
 
 namespace Modules\Operation\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, Pivot};
 
 class InstitutionCourse extends Pivot
 {
     protected $table = 'institution_courses';
+
     /**
      * The attributes that are mass assignable.
      */
