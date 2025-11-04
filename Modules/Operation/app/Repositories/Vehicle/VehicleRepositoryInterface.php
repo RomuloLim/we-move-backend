@@ -8,7 +8,7 @@ use Modules\Operation\Models\Vehicle;
 
 interface VehicleRepositoryInterface
 {
-    public function paginate(int $perPage = 15): LengthAwarePaginator;
+    public function paginate(string $search = null, int $perPage = 15): LengthAwarePaginator;
 
     /**
      * @return Vehicle[]

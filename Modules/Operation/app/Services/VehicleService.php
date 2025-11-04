@@ -11,9 +11,9 @@ class VehicleService implements VehicleServiceInterface
 {
     public function __construct(protected VehicleRepositoryInterface $repository) {}
 
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(?string $search = null, int $perPage = 15): LengthAwarePaginator
     {
-        return $this->repository->paginate($perPage);
+        return $this->repository->paginate($search, $perPage);
     }
 
     public function all(): array

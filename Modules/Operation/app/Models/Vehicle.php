@@ -2,6 +2,7 @@
 
 namespace Modules\Operation\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Operation\Database\Factories\VehicleFactory;
@@ -25,5 +26,12 @@ class Vehicle extends Model
     protected static function newFactory(): VehicleFactory
     {
         return VehicleFactory::new();
+    }
+
+    public function licensePlate(): Attribute
+    {
+        return Attribute::make(
+            set: fn (string $value) => strtoupper($value),
+        );
     }
 }
