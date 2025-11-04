@@ -3,14 +3,21 @@
 namespace Modules\Operation\Repositories\Vehicle;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Operation\DTOs\VehicleDto;
 use Modules\Operation\Models\Vehicle;
 
 class VehicleRepository implements VehicleRepositoryInterface
 {
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(string $search = null, int $perPage = 15): LengthAwarePaginator
     {
-        return Vehicle::query()->paginate($perPage);
+        return Vehicle::query()
+            ->when($search, function (Builder $query) use ($search) {
+                $query->where('license_plate', 'ilike', $search)
+                        ->orWhere('model', 'ilike', "%$search%");
+            })
+            ->orderByDesc('id')
+            ->paginate($perPage);
     }
 
     public function all(): array
@@ -44,7 +51,7 @@ class VehicleRepository implements VehicleRepositoryInterface
         $vehicle = Vehicle::find($id);
 
         if ($vehicle) {
-            return (bool) $vehicle->delete();
+            return (bool)$vehicle->delete();
         }
 
         return false;

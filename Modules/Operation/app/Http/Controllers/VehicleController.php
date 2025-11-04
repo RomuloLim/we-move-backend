@@ -5,6 +5,7 @@ namespace Modules\Operation\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\{JsonResponse, Request};
 use Modules\Operation\Http\Requests\VehicleFormRequest;
+use Modules\Operation\Http\Requests\VehicleIndexRequest;
 use Modules\Operation\Http\Resources\VehicleResource;
 use Modules\Operation\Services\VehicleServiceInterface;
 use Symfony\Component\HttpFoundation\Response as StatusCode;
@@ -13,9 +14,9 @@ class VehicleController extends Controller
 {
     public function __construct(protected VehicleServiceInterface $service) {}
 
-    public function index(Request $request): JsonResponse
+    public function index(VehicleIndexRequest $request): JsonResponse
     {
-        $vehicles = $this->service->paginate($request->get('per_page', 15));
+        $vehicles = $this->service->paginate($request->get('search'), $request->get('per_page', 15));
 
         return VehicleResource::collection($vehicles)->response();
     }
