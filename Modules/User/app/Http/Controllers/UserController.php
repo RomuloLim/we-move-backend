@@ -6,41 +6,34 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Validation\ValidationException;
 use Modules\User\Enums\UserType;
-use Modules\User\Http\Requests\{CreateUserByAdminRequest, RegisterStudentRequest};
+use Modules\User\Http\Requests\{CreateUserByAdminRequest, ListUserRequest, RegisterStudentRequest};
 use Modules\User\Http\Resources\UserResource;
+use Modules\User\Models\User;
 use Modules\User\Services\UserService;
 
 class UserController extends Controller
 {
-    public function __construct(private UserService $userService) {}
+    public function __construct(private readonly UserService $userService) {}
 
     /**
      * Lista usuários (apenas admins).
      */
-    public function index(Request $request): JsonResponse
+    public function index(ListUserRequest $request): JsonResponse
     {
         $user = $request->user();
 
-        if (!$user || !$user->can('viewAny', \Modules\User\Models\User::class)) {
+        if (!$user || !$user->can('viewAny', User::class)) {
             return response()->json([
                 'message' => 'Acesso negado. Apenas administradores podem listar usuários.',
             ], 403);
         }
 
-        $type = $request->input('type') ? UserType::from($request->input('type')) : null;
-        $perPage = $request->input('per_page', 15);
+        $dto = $request->toDto();
 
-        $users = $this->userService->listUsers($type, $perPage);
+        $users = $this->userService->listUsers($dto);
 
-        return response()->json([
-            'data' => UserResource::collection($users->items()),
-            'pagination' => [
-                'current_page' => $users->currentPage(),
-                'per_page' => $users->perPage(),
-                'total' => $users->total(),
-                'last_page' => $users->lastPage(),
-            ],
-        ]);
+        return UserResource::collection($users)
+            ->response();
     }
 
     /**
@@ -96,7 +89,7 @@ class UserController extends Controller
     public function updateType(Request $request, int $userId): JsonResponse
     {
         $currentUser = $request->user();
-        $user = \Modules\User\Models\User::findOrFail($userId);
+        $user = User::findOrFail($userId);
 
         $request->validate([
             'user_type' => ['required', 'string', 'in:admin,student,driver'],

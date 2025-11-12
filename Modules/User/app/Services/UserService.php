@@ -2,8 +2,11 @@
 
 namespace Modules\User\Services;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Modules\User\DTOs\SearchParamsDTO;
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
 
@@ -60,16 +63,21 @@ class UserService
     /**
      * Lista usuários com filtros.
      */
-    public function listUsers(?UserType $type = null, int $perPage = 15): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    public function listUsers(SearchParamsDTO $searchParams): LengthAwarePaginator
     {
-        $query = User::query();
+        $query = User::query()
+            ->when($searchParams->search, function (Builder $query, $search) {
+                $query->where(function (Builder $subQuery) use ($search) {
+                    $subQuery->where('name', 'ilike', "%{$search}%")
+                        ->orWhere('email', 'ilike', "%{$search}%")
+                        ->orWhere('cpf', $search)
+                        ->orWhere('rg', $search);
+                });
+            })
+            ->when($searchParams->type, fn(Builder $q) => $q->where('user_type', $searchParams->type->value))
+            ->orderBy('created_at', 'desc');
 
-        if ($type) {
-            $query->where('user_type', $type->value);
-        }
-
-        return $query->orderBy('created_at', 'desc')
-            ->paginate($perPage);
+        return $query->paginate($searchParams->perPage);
     }
 
     /**
