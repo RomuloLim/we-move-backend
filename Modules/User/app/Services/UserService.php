@@ -81,16 +81,30 @@ class UserService
     }
 
     /**
+     * Atualiza os dados de um usuário.
+     */
+    public function updateUser(User $user, array $data): User
+    {
+        $user->fill($data);
+
+        if (isset($data['password'])) {
+            $user->password = Hash::make($data['password']);
+        }
+
+        $user->save();
+
+        return $user;
+    }
+
+    /**
      * Atualiza o tipo de um usuário.
      */
     public function updateUserType(User $user, UserType $newType, User $updatedBy): User
     {
-        // Super-admin não pode ter seu tipo alterado
         if ($user->user_type === UserType::SuperAdmin) {
             throw new \Exception('Não é possível alterar o tipo de um Super Administrador.');
         }
 
-        // Não é possível promover alguém para super-admin
         if ($newType === UserType::SuperAdmin) {
             throw new \Exception('Não é possível promover usuário para Super Administrador.');
         }

@@ -104,6 +104,11 @@ class UserPolicy
             return false;
         }
 
+        //cannot promote students
+        if ($model->user_type === UserType::Student) {
+            return false;
+        }
+
         return true;
     }
 

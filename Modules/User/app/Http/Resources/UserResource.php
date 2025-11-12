@@ -16,8 +16,12 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'cpf' => $this->cpf,
+            'rg' => $this->rg,
             'user_type' => $this->user_type,
             'user_type_label' => $this->user_type->label(),
+            'phone_contact' => $this->phone_contact,
+            'profile_picture_url' => $this->profile_picture_url,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

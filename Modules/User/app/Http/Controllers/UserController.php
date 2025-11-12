@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\{JsonResponse, Request};
 use Illuminate\Validation\ValidationException;
 use Modules\User\Enums\UserType;
-use Modules\User\Http\Requests\{CreateUserByAdminRequest, ListUserRequest, RegisterStudentRequest};
+use Modules\User\Http\Requests\{CreateUserByAdminRequest, ListUserRequest, RegisterStudentRequest, UpdateUserRequest};
 use Modules\User\Http\Resources\UserResource;
 use Modules\User\Models\User;
 use Modules\User\Services\UserService;
@@ -84,30 +84,24 @@ class UserController extends Controller
     }
 
     /**
-     * Atualiza o tipo de um usuário.
+     * Atualiza os dados de um usuário.
      */
-    public function updateType(Request $request, int $userId): JsonResponse
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
-        $currentUser = $request->user();
-        $user = User::findOrFail($userId);
+        $data = $request->validated();
 
-        $request->validate([
-            'user_type' => ['required', 'string', 'in:admin,student,driver'],
-        ]);
-
-        $newType = UserType::from($request->input('user_type'));
-
-        if (!$currentUser || !$currentUser->can('updateUserType', [$user, $newType])) {
-            return response()->json([
-                'message' => 'Acesso negado.',
-            ], 403);
-        }
-
-        $updatedUser = $this->userService->updateUserType($user, $newType, $currentUser);
+        $updatedUser = $this->userService->updateUser($user, $data);
 
         return response()->json([
-            'message' => 'Tipo de usuário atualizado com sucesso.',
+            'message' => 'Usuário atualizado com sucesso.',
             'data' => new UserResource($updatedUser),
+        ]);
+    }
+
+    public function show(User $user): JsonResponse
+    {
+        return response()->json([
+            'data' => new UserResource($user),
         ]);
     }
 }

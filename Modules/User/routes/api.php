@@ -16,6 +16,9 @@ Route::prefix('v1/users')->group(function () {
         Route::post('/', [UserController::class, 'store'])->name('users.store');
 
         Route::get('/', [UserController::class, 'index'])->name('users.index');
-        Route::put('{userId}/type', [UserController::class, 'updateType'])->name('users.update-type');
+
+        Route::get('{user}', [UserController::class, 'show'])->name('users.show');
+
+        Route::put('{user}', [UserController::class, 'update'])->name('users.update');
     });
 });
