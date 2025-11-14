@@ -29,15 +29,17 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Institution routes
     $viewInstitutionsPermission = Permission::ViewInstitutions->value;
-    Route::middleware("permission:{$viewInstitutionsPermission}")->group(function () {
-        Route::get('institutions', [InstitutionController::class, 'index'])
+    Route::prefix('institutions')->middleware("permission:{$viewInstitutionsPermission}")->group(function () {
+        Route::get('/', [InstitutionController::class, 'index'])
             ->name('operation.institutions.index');
+        Route::get('/ordered-by-course/{courseId}', [InstitutionCourseController::class, 'getInstitutionsOrderedByCourse'])
+            ->name('operation.institutions.ordered_by_course');
+        Route::get('/ordered-by-course/{courseId}', [InstitutionCourseController::class, 'getInstitutionsOrderedByCourse'])
+            ->name('operation.institutions.ordered_by_course');
 
-        Route::get('institutions/by-course/{course}', [InstitutionCourseController::class, 'getInstitutionsByCourse'])
-            ->name('operation.institutions.by-course');
-
-        Route::get('institutions/{institution}', [InstitutionController::class, 'show'])
+        Route::get('/{institution}', [InstitutionController::class, 'show'])
             ->name('operation.institutions.show');
+
     });
 
     $manageInstitutionsPermission = Permission::ManageInstitutions->value;
@@ -60,11 +62,14 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Course routes
     $viewCoursesPermission = Permission::ViewCourses->value;
-    Route::middleware("permission:{$viewCoursesPermission}")->group(function () {
-        Route::get('courses', [CourseController::class, 'index'])
+    Route::prefix('courses')->middleware("permission:{$viewCoursesPermission}")->group(function () {
+        Route::get('/', [CourseController::class, 'index'])
             ->name('operation.courses.index');
 
-        Route::get('courses/{course}', [CourseController::class, 'show'])
+        Route::get('/ordered-by-institution/{institutionId}', [InstitutionCourseController::class, 'getCoursesOrderedByInstitution'])
+            ->name('operation.institutions.ordered_by_course');
+
+        Route::get('/{course}', [CourseController::class, 'show'])
             ->name('operation.courses.show');
     });
 

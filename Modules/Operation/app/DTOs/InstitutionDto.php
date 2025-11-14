@@ -4,6 +4,7 @@ namespace Modules\Operation\DTOs;
 
 use App\Contracts\DtoContract;
 use Illuminate\Support\Collection;
+use Modules\Operation\Models\Institution;
 
 readonly class InstitutionDto implements DtoContract
 {
@@ -18,6 +19,21 @@ readonly class InstitutionDto implements DtoContract
         public string $state = '',
         public ?string $zip_code = null,
     ) {}
+
+    public static function fromEloquentModel(Institution $model): self
+    {
+        return new self(
+            name: $model->name,
+            acronym: $model->acronym,
+            street: $model->street,
+            number: $model->number,
+            complement: $model->complement,
+            neighborhood: $model->neighborhood,
+            city: $model->city,
+            state: $model->state,
+            zip_code: $model->zip_code,
+        );
+    }
 
     public static function collection(array $data): Collection
     {

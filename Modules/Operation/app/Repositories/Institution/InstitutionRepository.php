@@ -13,6 +13,18 @@ class InstitutionRepository implements InstitutionRepositoryInterface
         return Institution::query()->paginate($perPage);
     }
 
+    public function getOrderedByCourse(int $courseId): LengthAwarePaginator
+    {
+        $institutions = Institution::query()
+            ->select('institutions.*')
+            ->leftJoin('institution_courses', 'institutions.id', '=', 'institution_courses.institution_id')
+            ->where('institution_courses.course_id', $courseId)
+            ->orWhereNull('institution_courses.course_id')
+            ->orderByRaw("CASE WHEN institution_courses.course_id IS NOT NULL THEN 0 ELSE 1 END");
+
+        return $institutions->paginate();
+    }
+
     public function all(): array
     {
         return Institution::all()->toArray();

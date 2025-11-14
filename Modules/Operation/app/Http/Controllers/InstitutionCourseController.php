@@ -5,6 +5,7 @@ namespace Modules\Operation\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Modules\Operation\Http\Requests\LinkCourseRequest;
+use Modules\Operation\Http\Resources\CourseResource;
 use Modules\Operation\Http\Resources\InstitutionResource;
 use Modules\Operation\Services\InstitutionCourseServiceInterface;
 use Symfony\Component\HttpFoundation\Response as StatusCode;
@@ -13,11 +14,20 @@ class InstitutionCourseController extends Controller
 {
     public function __construct(protected InstitutionCourseServiceInterface $service) {}
 
-    public function getInstitutionsByCourse(int $courseId): JsonResponse
+    public function getInstitutionsOrderedByCourse(int $courseId): JsonResponse
     {
-        $institutions = $this->service->getInstitutionsByCourse($courseId);
+        $institutions = $this->service->getInstitutionsOrderedByCourse($courseId);
 
-        return InstitutionResource::make($institutions)->response();
+        return InstitutionResource::collection($institutions)
+            ->response();
+    }
+
+    public function getCoursesOrderedByInstitution(int $institutionId): JsonResponse
+    {
+        $courses = $this->service->getCoursesOrderedByInstitution($institutionId);
+
+        return CourseResource::collection($courses)
+            ->response();
     }
 
     public function linkCourse(LinkCourseRequest $request, int $institutionId): JsonResponse

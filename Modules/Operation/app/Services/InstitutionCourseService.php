@@ -5,19 +5,24 @@ namespace Modules\Operation\Services;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Modules\Operation\DTOs\{CourseDto};
+use Modules\Operation\Repositories\Course\CourseRepositoryInterface;
 use Modules\Operation\Repositories\Institution\InstitutionRepositoryInterface;
 
 class InstitutionCourseService implements InstitutionCourseServiceInterface
 {
     public function __construct(
         private readonly InstitutionRepositoryInterface $institutionRepository,
+        private readonly CourseRepositoryInterface $courseRepository
     ) {}
 
-    public function getInstitutionsByCourse(int $courseId): LengthAwarePaginator
+    public function getInstitutionsOrderedByCourse(int $courseId): LengthAwarePaginator
     {
-        $institutions = $this->institutionRepository->getByCourseId($courseId);
+        return $this->institutionRepository->getOrderedByCourse($courseId);
+    }
 
-        return $institutions;
+    public function getCoursesOrderedByInstitution(int $institutionId): LengthAwarePaginator
+    {
+        return $this->courseRepository->getOrderedByInstitution($institutionId);
     }
 
     public function linkCourse(int $institutionId, array $coursesIds): Collection

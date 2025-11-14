@@ -8,7 +8,7 @@ use Modules\Operation\DTOs\{CourseDto};
 
 interface InstitutionCourseServiceInterface
 {
-    public function getInstitutionsByCourse(int $courseId): LengthAwarePaginator;
+    public function getInstitutionsOrderedByCourse(int $courseId): LengthAwarePaginator;
 
     /**
      * @param  array<int>  $coursesIds
@@ -20,4 +20,6 @@ interface InstitutionCourseServiceInterface
      * @param  array<int>  $coursesIds
      */
     public function unlinkCourse(int $institutionId, array $coursesIds): bool;
+
+    public function getCoursesOrderedByInstitution(int $institutionId);
 }
