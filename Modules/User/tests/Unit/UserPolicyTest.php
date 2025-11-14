@@ -135,26 +135,26 @@ class UserPolicyTest extends TestCase
     public function test_super_admin_can_update_user_type(): void
     {
         $superAdmin = User::factory()->create(['user_type' => UserType::SuperAdmin]);
-        $student = User::factory()->create(['user_type' => UserType::Student]);
+        $user = User::factory()->create(['user_type' => UserType::Driver]);
 
-        $this->assertTrue($superAdmin->can('updateUserType', [$student, UserType::Driver]));
-        $this->assertTrue($superAdmin->can('updateUserType', [$student, UserType::Admin]));
+        $this->assertTrue($superAdmin->can('updateUserType', [$user, UserType::Driver]));
+        $this->assertTrue($superAdmin->can('updateUserType', [$user, UserType::Admin]));
     }
 
     public function test_admin_can_update_user_type(): void
     {
         $admin = User::factory()->create(['user_type' => UserType::Admin]);
-        $student = User::factory()->create(['user_type' => UserType::Student]);
+        $user = User::factory()->create(['user_type' => UserType::Driver]);
 
-        $this->assertTrue($admin->can('updateUserType', [$student, UserType::Driver]));
+        $this->assertTrue($admin->can('updateUserType', [$user, UserType::Admin]));
     }
 
     public function test_admin_cannot_promote_to_super_admin(): void
     {
         $admin = User::factory()->create(['user_type' => UserType::Admin]);
-        $student = User::factory()->create(['user_type' => UserType::Student]);
+        $user = User::factory()->create(['user_type' => UserType::Driver]);
 
-        $this->assertFalse($admin->can('updateUserType', [$student, UserType::SuperAdmin]));
+        $this->assertFalse($admin->can('updateUserType', [$user, UserType::SuperAdmin]));
     }
 
     public function test_user_cannot_change_own_type(): void

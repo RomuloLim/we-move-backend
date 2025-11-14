@@ -54,4 +54,14 @@ class InstitutionRepository implements InstitutionRepositoryInterface
 
         return false;
     }
+
+    public function getByCourseId(int $courseId): LengthAwarePaginator
+    {
+        $institutions = Institution::query()
+            ->whereHas('courses', function ($query) use ($courseId) {
+                $query->where('courses.id', $courseId);
+            });
+
+        return $institutions->paginate();
+    }
 }

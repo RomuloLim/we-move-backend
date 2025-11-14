@@ -3,6 +3,7 @@
 namespace Modules\User\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\UnauthorizedException;
 use Modules\User\Enums\UserType;
@@ -56,7 +57,12 @@ class UpdateUserRequest extends FormRequest
 
     protected function failedAuthorization()
     {
-        throw new UnauthorizedException('Você não tem permissão para atualizar este usuário.');
+        throw new HttpResponseException(response()->json([
+            'message' => 'Você não tem permissão para atualizar este usuário.',
+            'errors' => [
+                'profile' => 'Perfil não autorizado para esta ação.'
+            ]
+        ], 403));
     }
 }
 

@@ -33,6 +33,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('institutions', [InstitutionController::class, 'index'])
             ->name('operation.institutions.index');
 
+        Route::get('institutions/by-course/{course}', [InstitutionCourseController::class, 'getInstitutionsByCourse'])
+            ->name('operation.institutions.by-course');
+
         Route::get('institutions/{institution}', [InstitutionController::class, 'show'])
             ->name('operation.institutions.show');
     });
@@ -63,9 +66,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         Route::get('courses/{course}', [CourseController::class, 'show'])
             ->name('operation.courses.show');
-
-        Route::get('institutions/{institution}/courses', [CourseController::class, 'getByInstitution'])
-            ->name('operation.institutions.courses.index');
     });
 
     $manageCoursesPermission = Permission::ManageCourses->value;

@@ -2,19 +2,41 @@
 
 namespace Modules\Operation\DTOs;
 
-class InstitutionDto
+use App\Contracts\DtoContract;
+use Illuminate\Support\Collection;
+
+readonly class InstitutionDto implements DtoContract
 {
     public function __construct(
-        public readonly string $name,
-        public readonly ?string $acronym = null,
-        public readonly ?string $street = null,
-        public readonly ?string $number = null,
-        public readonly ?string $complement = null,
-        public readonly ?string $neighborhood = null,
-        public readonly string $city = '',
-        public readonly string $state = '',
-        public readonly ?string $zip_code = null,
+        public string $name,
+        public ?string $acronym = null,
+        public ?string $street = null,
+        public ?string $number = null,
+        public ?string $complement = null,
+        public ?string $neighborhood = null,
+        public string $city = '',
+        public string $state = '',
+        public ?string $zip_code = null,
     ) {}
+
+    public static function collection(array $data): Collection
+    {
+        $dtos = array_map(function ($institution) {
+            return new InstitutionDto(
+                name: data_get($institution, 'name'),
+                acronym: data_get($institution, 'acronym'),
+                street: data_get($institution, 'street'),
+                number: data_get($institution, 'number'),
+                complement: data_get($institution, 'complement'),
+                neighborhood: data_get($institution, 'neighborhood'),
+                city: data_get($institution, 'city'),
+                state: data_get($institution, 'state'),
+                zip_code: data_get($institution, 'zip_code'),
+            );
+        }, $data);
+
+        return new Collection($dtos);
+    }
 
     public function toArray(): array
     {

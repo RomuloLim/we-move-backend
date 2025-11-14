@@ -19,7 +19,7 @@ interface InstitutionRepositoryInterface
 
     public function findOrFail(int $id): ?Institution;
 
-    public function create(InstitutionDto $data): Institution;
+    public function getByCourseId(int $courseId): LengthAwarePaginator;
 
     public function update(int $id, InstitutionDto $data): ?Institution;
 

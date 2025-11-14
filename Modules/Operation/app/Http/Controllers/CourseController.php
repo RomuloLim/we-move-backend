@@ -61,11 +61,4 @@ class CourseController extends Controller
 
         return response()->json(['message' => 'Curso removido com sucesso.']);
     }
-
-    public function getByInstitution(int $institutionId): JsonResponse
-    {
-        $courses = $this->service->getByInstitutionId($institutionId);
-
-        return CourseResource::collection($courses)->response();
-    }
 }

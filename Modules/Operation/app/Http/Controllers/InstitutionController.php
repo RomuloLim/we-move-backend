@@ -61,4 +61,5 @@ class InstitutionController extends Controller
 
         return response()->json(['message' => 'Instituição removida com sucesso.']);
     }
+
 }

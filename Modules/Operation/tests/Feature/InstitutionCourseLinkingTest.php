@@ -66,23 +66,6 @@ class InstitutionCourseLinkingTest extends TestCase
         }
     }
 
-    public function test_student_can_get_courses_by_institution(): void
-    {
-        $this->userActingAs(UserType::Student);
-
-        $institution = Institution::factory()->create();
-        $course1 = Course::factory()->create(['name' => 'Course 1']);
-        $course2 = Course::factory()->create(['name' => 'Course 2']);
-
-        $institution->courses()->attach([$course1->id, $course2->id]);
-
-        $response = $this->getJson("/api/v1/institutions/{$institution->id}/courses");
-
-        $response->assertOk()
-            ->assertJsonFragment(['name' => 'Course 1'])
-            ->assertJsonFragment(['name' => 'Course 2']);
-    }
-
     public function test_student_cannot_link_course_to_institution(): void
     {
         $this->userActingAs(UserType::Student);
@@ -137,14 +120,5 @@ class InstitutionCourseLinkingTest extends TestCase
         ]);
 
         $response->assertNotFound();
-    }
-
-    public function test_get_courses_for_non_existent_institution_returns_empty_array(): void
-    {
-        $this->userActingAs(UserType::Student);
-
-        $response = $this->getJson('/api/v1/institutions/999999/courses');
-
-        $response->assertOk()->assertJson([]);
     }
 }

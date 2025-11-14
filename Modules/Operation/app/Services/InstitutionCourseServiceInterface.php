@@ -2,11 +2,14 @@
 
 namespace Modules\Operation\Services;
 
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Modules\Operation\DTOs\CourseDto;
+use Modules\Operation\DTOs\{CourseDto};
 
 interface InstitutionCourseServiceInterface
 {
+    public function getInstitutionsByCourse(int $courseId): LengthAwarePaginator;
+
     /**
      * @param  array<int>  $coursesIds
      * @return Collection<int, CourseDto>

@@ -2,19 +2,34 @@
 
 namespace Modules\Operation\DTOs;
 
-use Nwidart\Modules\Collection;
+use App\Contracts\DtoContract;
+use Illuminate\Support\Collection;
 
-class CourseDto
+readonly class CourseDto implements DtoContract
 {
+    /**
+     * @param  Collection<InstitutionDto>|null  $institutions
+     */
     public function __construct(
-        public readonly string $name,
+        public string $name,
+        public ?Collection $institutions = null,
     ) {}
 
-    public static function collection(array $courses): Collection
+    public static function collection(array $data): Collection
     {
-        $dtos = array_map(fn ($course) => new self(
-            name: $course['name'],
-        ), $courses);
+        $dtos = array_map(function ($course) {
+            $hasInstitutions = array_key_exists('institutions', $course);
+            $institutions = null;
+
+            if ($hasInstitutions && isset($course['institutions'])) {
+                $institutions = InstitutionDto::collection($course['institutions']);
+            }
+
+            return new CourseDto(
+                name: $course['name'],
+                institutions: $institutions,
+            );
+        }, $data);
 
         return new Collection($dtos);
     }

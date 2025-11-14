@@ -169,37 +169,37 @@ class UserControllerTest extends TestCase
     {
         // Arrange
         $superAdmin = User::factory()->create(['user_type' => UserType::SuperAdmin]);
-        $student = User::factory()->create(['user_type' => UserType::Student]);
+        $driver = User::factory()->create(['user_type' => UserType::Driver]);
 
         Sanctum::actingAs($superAdmin);
 
         // Act
-        $response = $this->putJson("/api/v1/users/{$student->id}/type", [
-            'user_type' => 'driver',
+        $response = $this->putJson("/api/v1/users/{$driver->id}", [
+            'user_type' => 'admin',
         ]);
 
         // Assert
         $response->assertStatus(200);
 
-        $student->refresh();
-        $this->assertEquals(UserType::Driver, $student->user_type);
+        $driver->refresh();
+        $this->assertEquals(UserType::Admin, $driver->user_type);
     }
 
     public function test_admin_cannot_update_user_type_for_super_admin(): void
     {
         // Arrange
         $admin = User::factory()->create(['user_type' => UserType::Admin]);
-        $student = User::factory()->create(['user_type' => UserType::Student]);
+        $driver = User::factory()->create(['user_type' => UserType::Driver]);
 
         Sanctum::actingAs($admin);
 
         // Act
-        $response = $this->putJson("/api/v1/users/{$student->id}/type", [
+        $response = $this->putJson("/api/v1/users/{$driver->id}", [
             'user_type' => 'super-admin',
         ]);
 
         // Assert
-        $response->assertUnprocessable()
+        $response->assertForbidden()
             ->assertJsonStructure([
                 'message',
                 'errors',
