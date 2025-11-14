@@ -4,6 +4,7 @@ namespace Modules\Operation\DTOs;
 
 use App\Contracts\DtoContract;
 use Illuminate\Support\Collection;
+use Modules\Operation\Enums\CourseType;
 
 readonly class CourseDto implements DtoContract
 {
@@ -12,6 +13,8 @@ readonly class CourseDto implements DtoContract
      */
     public function __construct(
         public string $name,
+        public CourseType $courseType,
+        public ?string $description = null,
         public ?Collection $institutions = null,
     ) {}
 
@@ -25,8 +28,14 @@ readonly class CourseDto implements DtoContract
                 $institutions = InstitutionDto::collection($course['institutions']);
             }
 
+            $course['course_type'] = $course['course_type'] instanceof CourseType
+                ? $course['course_type']
+                : CourseType::from($course['course_type']);
+
             return new CourseDto(
                 name: $course['name'],
+                courseType: $course['course_type'],
+                description: $course['description'] ?? null,
                 institutions: $institutions,
             );
         }, $data);
@@ -38,6 +47,8 @@ readonly class CourseDto implements DtoContract
     {
         return [
             'name' => $this->name,
+            'course_type' => $this->courseType->value,
+            'description' => $this->description,
         ];
     }
 }

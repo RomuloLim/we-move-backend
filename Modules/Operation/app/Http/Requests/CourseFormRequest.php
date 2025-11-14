@@ -4,7 +4,9 @@ namespace Modules\Operation\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 use Modules\Operation\DTOs\CourseDto;
+use Modules\Operation\Enums\CourseType;
 
 class CourseFormRequest extends FormRequest
 {
@@ -18,6 +20,15 @@ class CourseFormRequest extends FormRequest
                 'string',
                 'max:255',
                 Rule::unique('courses', 'name')->ignore($courseId),
+            ],
+            'course_type' => [
+                'required',
+                'string',
+                new Enum(CourseType::class),
+            ],
+            'description' => [
+                'nullable',
+                'string',
             ],
         ];
     }
@@ -36,6 +47,8 @@ class CourseFormRequest extends FormRequest
 
         return new CourseDto(
             name: $validated['name'],
+            courseType: CourseType::from($validated['course_type']),
+            description: $validated['description'] ?? null,
         );
     }
 }

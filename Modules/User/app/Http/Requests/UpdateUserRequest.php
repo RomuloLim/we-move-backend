@@ -36,7 +36,6 @@ class UpdateUserRequest extends FormRequest
             'rg' => ['sometimes', 'string', 'max:20', Rule::unique('users', 'rg')->ignore($userId)],
             'user_type' => ['sometimes', 'string', Rule::in([UserType::Admin, UserType::Driver, UserType::Student])],
             'phone_contact' => ['sometimes', 'string', 'max:20'],
-            'profile_picture_url' => ['sometimes', 'string', 'max:2048'],
             'password' => ['sometimes', 'string', 'min:8'],
         ];
     }
