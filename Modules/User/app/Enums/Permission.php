@@ -27,6 +27,12 @@ enum Permission: string
     case ViewCourses = 'view-courses';
     case ManageCourses = 'manage-courses';
 
+    // Routes and Stops Permissions
+    case ViewRoutes = 'view-routes';
+    case ManageRoutes = 'manage-routes';
+    case ViewStops = 'view-stops';
+    case ManageStops = 'manage-stops';
+
     // Student Requisition Permissions
     case SubmitRequisition = 'submit-requisition';
     case ViewRequisitions = 'view-requisitions';
@@ -65,6 +71,10 @@ enum Permission: string
             self::ManageInstitutions,
             self::ViewCourses,
             self::ManageCourses,
+            self::ViewRoutes,
+            self::ManageRoutes,
+            self::ViewStops,
+            self::ManageStops,
             self::ViewRequisitions,
             self::ManageRequisitions,
         ];
@@ -74,6 +84,8 @@ enum Permission: string
     {
         return [
             self::ViewVehicles,
+            self::ViewRoutes,
+            self::ViewStops,
         ];
     }
 
@@ -105,6 +117,10 @@ enum Permission: string
             self::ManageInstitutions => 'Gerenciar instituições',
             self::ViewCourses => 'Visualizar cursos',
             self::ManageCourses => 'Gerenciar cursos',
+            self::ViewRoutes => 'Visualizar rotas',
+            self::ManageRoutes => 'Gerenciar rotas',
+            self::ViewStops => 'Visualizar paradas',
+            self::ManageStops => 'Gerenciar paradas',
             self::SubmitRequisition => 'Enviar solicitação',
             self::ViewRequisitions => 'Visualizar solicitações',
             self::ManageRequisitions => 'Gerenciar solicitações',

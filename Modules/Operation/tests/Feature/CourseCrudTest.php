@@ -4,6 +4,7 @@ namespace Modules\Operation\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Modules\Operation\Enums\CourseType;
 use Modules\Operation\Models\Course;
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
@@ -24,7 +25,10 @@ class CourseCrudTest extends TestCase
     {
         $this->userActingAs(UserType::Admin);
 
-        $data = ['name' => 'Ciência da Computação'];
+        $data = [
+            'name' => mb_strtoupper('Ciência da Computação', 'UTF-8'),
+            'course_type' => CourseType::Graduate->value,
+        ];
 
         $response = $this->postJson('/api/v1/courses', $data);
         $response->assertCreated();
@@ -35,20 +39,24 @@ class CourseCrudTest extends TestCase
     {
         $this->userActingAs(UserType::Admin);
 
-        Course::factory()->create(['name' => 'Test Course']);
+        $courseName = 'Test Course';
+
+        Course::factory()->create(['name' => $courseName]);
 
         $response = $this->getJson('/api/v1/courses');
-        $response->assertOk()->assertJsonFragment(['name' => 'Test Course']);
+        $response->assertOk()->assertJsonFragment(['name' => mb_strtoupper($courseName)]);
     }
 
     public function test_admin_can_show_course(): void
     {
         $this->userActingAs(UserType::Admin);
 
-        $course = Course::factory()->create(['name' => 'Show Course']);
+        $courseName = 'Show Course';
+
+        $course = Course::factory()->create(['name' => $courseName]);
 
         $response = $this->getJson('/api/v1/courses/' . $course->id);
-        $response->assertOk()->assertJsonFragment(['name' => 'Show Course']);
+        $response->assertOk()->assertJsonFragment(['name' => mb_strtoupper($courseName)]);
     }
 
     public function test_admin_can_update_course(): void
@@ -56,7 +64,10 @@ class CourseCrudTest extends TestCase
         $this->userActingAs(UserType::Admin);
 
         $course = Course::factory()->create(['name' => 'Old Course']);
-        $data = ['name' => 'New Course'];
+        $data = [
+            'name' => mb_strtoupper('Updated Course'),
+            'course_type' => CourseType::Postgraduate->value,
+        ];
 
         $response = $this->putJson('/api/v1/courses/' . $course->id, $data);
         $response->assertOk();
@@ -78,10 +89,12 @@ class CourseCrudTest extends TestCase
     {
         $this->userActingAs(UserType::Student);
 
-        Course::factory()->create(['name' => 'Student View Course']);
+        $courseName = 'Student View Course';
+
+        Course::factory()->create(['name' => $courseName]);
 
         $response = $this->getJson('/api/v1/courses');
-        $response->assertOk()->assertJsonFragment(['name' => 'Student View Course']);
+        $response->assertOk()->assertJsonFragment(['name' => mb_strtoupper($courseName)]);
     }
 
     public function test_student_cannot_create_course(): void
