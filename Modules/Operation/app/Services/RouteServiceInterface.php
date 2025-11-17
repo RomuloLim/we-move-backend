@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\Operation\Repositories\Route;
+namespace Modules\Operation\Services;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Modules\Operation\DTOs\RouteDto;
 use Modules\Operation\Models\Route;
 
-interface RouteRepositoryInterface
+interface RouteServiceInterface
 {
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 

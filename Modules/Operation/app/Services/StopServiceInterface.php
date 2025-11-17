@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\Operation\Repositories\Stop;
+namespace Modules\Operation\Services;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Modules\Operation\DTOs\StopDto;
 use Modules\Operation\Models\Stop;
 
-interface StopRepositoryInterface
+interface StopServiceInterface
 {
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 
