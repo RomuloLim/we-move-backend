@@ -27,8 +27,8 @@ class Playground extends Command
      */
     public function handle()
     {
-        Route::truncate();
-        Route::factory()->hasStops(5)->create();
-        dd(Stop::all()->toArray());
+//        Route::truncate();
+//        Route::factory()->hasStops(5)->create();
+        dd(Route::with('firstStop', 'lastStop')->withCount('stops as stops_amount')->first()->toArray());
     }
 }

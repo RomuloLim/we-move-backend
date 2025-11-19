@@ -10,7 +10,10 @@ class RouteRepository implements RouteRepositoryInterface
 {
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
-        return Route::query()->with('stops')->paginate($perPage);
+        return Route::query()
+            ->with(['firstStop', 'lastStop'])
+            ->withCount('stops as stops_amount')
+            ->paginate($perPage);
     }
 
     public function all(): array

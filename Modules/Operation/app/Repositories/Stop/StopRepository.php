@@ -26,11 +26,11 @@ class StopRepository implements StopRepositoryInterface
     public function create(StopDto $data): Stop
     {
         $latestStopOrder = Stop::where('route_id', $data->routeId)
-            ->max('stop_order') ?? 0;
+            ->max('order') ?? 0;
 
         return Stop::create([
-            'stop_order' => $latestStopOrder + 1,
             ...$data->toArray(),
+            'order' => $latestStopOrder + 1,
         ]);
     }
 
