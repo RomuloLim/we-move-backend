@@ -19,6 +19,9 @@ class RouteResource extends JsonResource
             'route_name' => $this->route_name,
             'description' => $this->description,
             'stops' => StopResource::collection($this->whenLoaded('stops')),
+            'stops_amount' => $this->when(isset($this->stops_amount), $this->stops_amount),
+            'first_stop' => new StopResource($this->whenLoaded('firstStop')),
+            'last_stop' => new StopResource($this->whenLoaded('lastStop')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
