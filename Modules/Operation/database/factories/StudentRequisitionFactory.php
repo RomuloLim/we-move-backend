@@ -33,8 +33,13 @@ class StudentRequisitionFactory extends Factory
             'birth_date' => $this->faker->date('Y-m-d', '-18 years'),
             'institution_email' => $this->faker->unique()->safeEmail(),
             'institution_registration' => $this->faker->unique()->numerify('########'),
-            'institution_id' => Institution::factory()->create()->id,
-            'course_id' => Course::factory()->create()->id,
+
+            'institution_course_id' => function () {
+                $institution = Institution::factory()->create();
+                $course = Course::factory()->create();
+                $institution->courses()->attach($course->id);
+                return $institution->courses()->first()->pivot->id;
+            },
             'atuation_form' => $this->faker->randomElement(AtuationForm::cases()),
             'deny_reason' => null,
         ];

@@ -42,6 +42,7 @@ class OperationServiceProvider extends ServiceProvider
         $this->app->register(DocumentServiceProvider::class);
         $this->app->register(StudentRequisitionServiceProvider::class);
         $this->app->register(StopServiceProvider::class);
+        $this->app->register(StudentServiceProvider::class);
     }
 
     /**

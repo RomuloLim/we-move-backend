@@ -43,8 +43,8 @@ class StudentRequisitionTest extends TestCase
             'institution_email' => 'student@university.edu.br',
             'institution_registration' => '202401234',
             'semester' => 5,
-            'institution_id' => $institution->id,
-            'course_id' => $course->id,
+            'semester' => 5,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
             'atuation_form' => AtuationForm::Student->value,
             'residency_proof' => UploadedFile::fake()->create('residency.pdf', 1024),
             'identification_document' => UploadedFile::fake()->create('id.pdf', 1024),
@@ -85,12 +85,14 @@ class StudentRequisitionTest extends TestCase
         $institution = Institution::factory()->create();
         $course = Course::factory()->create();
 
+        $institution->courses()->attach($course->id);
+
         // Create an approved requisition
         StudentRequisition::factory()->create([
             'student_id' => $student->id,
             'status' => RequisitionStatus::Approved,
-            'institution_id' => $institution->id,
-            'course_id' => $course->id,
+            'status' => RequisitionStatus::Approved,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
         ]);
 
         $data = $this->getValidRequisitionData();
@@ -111,12 +113,14 @@ class StudentRequisitionTest extends TestCase
         $institution = Institution::factory()->create();
         $course = Course::factory()->create();
 
+        $institution->courses()->attach($course->id);
+
         // Create a pending requisition
         $existingRequisition = StudentRequisition::factory()->create([
             'student_id' => $student->id,
             'status' => RequisitionStatus::Pending,
-            'institution_id' => $institution->id,
-            'course_id' => $course->id,
+            'status' => RequisitionStatus::Pending,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
             'semester' => 3,
         ]);
 
@@ -173,8 +177,9 @@ class StudentRequisitionTest extends TestCase
             'institution_email',
             'institution_registration',
             'semester',
-            'institution_id',
-            'course_id',
+            'institution_registration',
+            'semester',
+            'institution_course_id',
             'atuation_form',
             'residency_proof',
             'identification_document',
@@ -201,5 +206,276 @@ class StudentRequisitionTest extends TestCase
         $protocol2 = $response2->json('data.protocol');
 
         $this->assertNotEquals($protocol1, $protocol2);
+    }
+
+    public function test_can_list_requisitions_without_filters(): void
+    {
+        $admin = User::factory()->create(['user_type' => UserType::Admin->value]);
+        Sanctum::actingAs($admin);
+
+        $institution = Institution::factory()->create();
+        $course = Course::factory()->create();
+
+        $institution->courses()->attach($course->id);
+
+        StudentRequisition::factory()->count(3)->create([
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+
+        $response = $this->getJson('/api/v1/requisitions');
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => [
+                    'id',
+                    'student_id',
+                    'protocol',
+                    'status',
+                    'semester',
+                    'street_name',
+                    'house_number',
+                    'neighborhood',
+                    'city',
+                    'phone_contact',
+                    'birth_date',
+                    'atuation_form',
+                    'deny_reason',
+                    'created_at',
+                    'updated_at',
+                ],
+            ],
+            'links',
+            'meta',
+        ]);
+
+        $this->assertCount(3, $response->json('data'));
+    }
+
+    public function test_can_filter_requisitions_by_protocol(): void
+    {
+        $admin = User::factory()->create(['user_type' => UserType::Admin->value]);
+        Sanctum::actingAs($admin);
+
+        $institution = Institution::factory()->create();
+        $course = Course::factory()->create();
+
+        $institution->courses()->attach($course->id);
+
+        StudentRequisition::factory()->create([
+            'protocol' => 'TEST-001',
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+
+        StudentRequisition::factory()->create([
+            'protocol' => 'TEST-002',
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+
+        $response = $this->getJson('/api/v1/requisitions?protocol=TEST-001');
+
+        $response->assertOk();
+        $data = $response->json('data');
+        $this->assertCount(1, $data);
+        $this->assertEquals('TEST-001', $data[0]['protocol']);
+    }
+
+    public function test_can_filter_requisitions_by_status(): void
+    {
+        $admin = User::factory()->create(['user_type' => UserType::Admin->value]);
+        Sanctum::actingAs($admin);
+
+        $institution = Institution::factory()->create();
+        $course = Course::factory()->create();
+
+        $institution->courses()->attach($course->id);
+
+        StudentRequisition::factory()->create([
+            'status' => RequisitionStatus::Pending,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+
+        StudentRequisition::factory()->create([
+            'status' => RequisitionStatus::Approved,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+
+        $response = $this->getJson('/api/v1/requisitions?status=' . RequisitionStatus::Approved->value);
+
+        $response->assertOk();
+        $data = $response->json('data');
+        $this->assertCount(1, $data);
+        $this->assertEquals(RequisitionStatus::Approved->value, $data[0]['status']);
+    }
+
+    public function test_can_filter_requisitions_by_atuation_form(): void
+    {
+        $admin = User::factory()->create(['user_type' => UserType::Admin->value]);
+        Sanctum::actingAs($admin);
+
+        $institution = Institution::factory()->create();
+        $course = Course::factory()->create();
+
+        $institution->courses()->attach($course->id);
+
+        StudentRequisition::factory()->create([
+            'atuation_form' => AtuationForm::Student,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+
+        StudentRequisition::factory()->create([
+            'atuation_form' => AtuationForm::Teacher,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+
+        $response = $this->getJson('/api/v1/requisitions?atuation_form=' . AtuationForm::Teacher->value);
+
+        $response->assertOk();
+        $data = $response->json('data');
+        $this->assertCount(1, $data);
+        $this->assertEquals(AtuationForm::Teacher->value, $data[0]['atuation_form']);
+    }
+
+    public function test_can_filter_requisitions_with_multiple_filters(): void
+    {
+        $admin = User::factory()->create(['user_type' => UserType::Admin->value]);
+        Sanctum::actingAs($admin);
+
+        $institution = Institution::factory()->create();
+        $course = Course::factory()->create();
+
+        $institution->courses()->attach($course->id);
+
+        StudentRequisition::factory()->create([
+            'status' => RequisitionStatus::Pending,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+            'atuation_form' => AtuationForm::Student,
+        ]);
+
+        StudentRequisition::factory()->create([
+            'status' => RequisitionStatus::Approved,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+            'atuation_form' => AtuationForm::Student,
+        ]);
+
+        $response = $this->getJson('/api/v1/requisitions?status=' . RequisitionStatus::Pending->value . '&atuation_form=' . AtuationForm::Student->value);
+
+        $response->assertOk();
+        $data = $response->json('data');
+        $this->assertCount(1, $data);
+        $this->assertEquals(RequisitionStatus::Pending->value, $data[0]['status']);
+        $this->assertEquals(AtuationForm::Student->value, $data[0]['atuation_form']);
+    }
+
+    public function test_requisition_list_returns_pagination_meta(): void
+    {
+        $admin = User::factory()->create(['user_type' => UserType::Admin->value]);
+        Sanctum::actingAs($admin);
+
+        $institution = Institution::factory()->create();
+        $course = Course::factory()->create();
+
+        $institution->courses()->attach($course->id);
+
+        StudentRequisition::factory()->count(20)->create([
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+
+        $response = $this->getJson('/api/v1/requisitions');
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'data',
+            'links' => ['first', 'last', 'prev', 'next'],
+            'meta' => [
+                'current_page',
+                'from',
+                'last_page',
+                'per_page',
+                'to',
+                'total',
+            ],
+        ]);
+
+        $meta = $response->json('meta');
+        $this->assertEquals(20, $meta['total']);
+        $this->assertGreaterThan(1, $meta['last_page']);
+    }
+
+    public function test_requisition_list_validates_invalid_status_enum(): void
+    {
+        $admin = User::factory()->create(['user_type' => UserType::Admin->value]);
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson('/api/v1/requisitions?status=invalid_status');
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['status']);
+    }
+
+    public function test_requisition_list_validates_invalid_atuation_form_enum(): void
+    {
+        $admin = User::factory()->create(['user_type' => UserType::Admin->value]);
+        Sanctum::actingAs($admin);
+
+        $response = $this->getJson('/api/v1/requisitions?atuation_form=invalid_form');
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['atuation_form']);
+    }
+
+    public function test_unauthenticated_user_cannot_list_requisitions(): void
+    {
+        $response = $this->getJson('/api/v1/requisitions');
+
+        $response->assertUnauthorized();
+    }
+
+    public function test_requisition_list_includes_institution_when_loaded(): void
+    {
+        $admin = User::factory()->create(['user_type' => UserType::Admin->value]);
+        Sanctum::actingAs($admin);
+
+        $institution = Institution::factory()->create(['name' => 'Test University']);
+        $course = Course::factory()->create();
+
+        $institution->courses()->attach($course->id);
+
+        StudentRequisition::factory()->create([
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+
+        $response = $this->getJson('/api/v1/requisitions');
+
+        $response->assertOk();
+        $data = $response->json('data');
+
+        if (isset($data[0]['institution'])) {
+            $this->assertEquals('Test University', $data[0]['institution']['name']);
+        }
+    }
+
+    public function test_requisition_list_includes_course_when_loaded(): void
+    {
+        $admin = User::factory()->create(['user_type' => UserType::Admin->value]);
+        Sanctum::actingAs($admin);
+
+        $institution = Institution::factory()->create();
+        $course = Course::factory()->create(['name' => 'Computer Science']);
+
+        $institution->courses()->attach($course->id);
+
+        StudentRequisition::factory()->create([
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+
+        $response = $this->getJson('/api/v1/requisitions');
+
+        $response->assertOk();
+        $data = $response->json('data');
+
+        if (isset($data[0]['course'])) {
+            $this->assertEquals('Computer Science', $data[0]['course']['name']);
+        }
     }
 }

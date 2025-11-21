@@ -31,7 +31,7 @@ class Institution extends Model
      */
     public function courses(): BelongsToMany
     {
-        return $this->belongsToMany(Course::class, 'institution_courses');
+        return $this->belongsToMany(Course::class, 'institution_courses')->withPivot('id');
     }
 
     /**

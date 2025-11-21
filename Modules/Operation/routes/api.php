@@ -135,4 +135,19 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::post('requisitions', [StudentRequisitionController::class, 'store'])
             ->name('operation.requisitions.store');
     });
+
+    $viewRequisitionsPermission = Permission::ViewRequisitions->value;
+    Route::middleware("permission:{$viewRequisitionsPermission}")->group(function () {
+        Route::get('requisitions', [StudentRequisitionController::class, 'index'])
+            ->name('operation.requisitions.index');
+    });
+
+    $manageRequisitionsPermission = Permission::ManageRequisitions->value;
+    Route::middleware("permission:{$manageRequisitionsPermission}")->group(function () {
+        Route::patch('requisitions/{id}/approve', [StudentRequisitionController::class, 'approve'])
+            ->name('operation.requisitions.approve');
+
+        Route::patch('requisitions/{id}/reprove', [StudentRequisitionController::class, 'reprove'])
+            ->name('operation.requisitions.reprove');
+    });
 });

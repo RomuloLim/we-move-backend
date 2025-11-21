@@ -29,10 +29,12 @@ class StudentRequisition extends Model
         'birth_date',
         'institution_email',
         'institution_registration',
-        'institution_id',
-        'course_id',
+        'institution_course_id',
+        'semester',
+        'protocol',
         'atuation_form',
         'deny_reason',
+        'reproved_fields',
     ];
 
     /**
@@ -44,6 +46,7 @@ class StudentRequisition extends Model
             'status' => RequisitionStatus::class,
             'atuation_form' => AtuationForm::class,
             'birth_date' => 'date',
+            'reproved_fields' => 'array',
         ];
     }
 
@@ -52,23 +55,15 @@ class StudentRequisition extends Model
      */
     public function student(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'student_id');
+        return $this->belongsTo(Student::class);
     }
 
     /**
-     * Get the institution associated with the requisition.
+     * Get the institution course associated with the requisition.
      */
-    public function institution(): BelongsTo
+    public function institutionCourse(): BelongsTo
     {
-        return $this->belongsTo(Institution::class);
-    }
-
-    /**
-     * Get the course associated with the requisition.
-     */
-    public function course(): BelongsTo
-    {
-        return $this->belongsTo(Course::class);
+        return $this->belongsTo(InstitutionCourse::class);
     }
 
     /**

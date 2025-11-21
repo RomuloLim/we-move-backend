@@ -3,19 +3,29 @@
 namespace Modules\Operation\Services;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\{DB};
-use Modules\Operation\DTOs\{DocumentDto, StudentRequisitionDto};
+use Modules\Operation\DTOs\{DocumentDto, RequisitionListParamsDto, StudentRequisitionDto};
 use Modules\Operation\Enums\DocumentType;
 use Modules\Operation\Models\StudentRequisition;
+use Modules\Operation\Enums\RequisitionStatus;
 use Modules\Operation\Repositories\Document\DocumentRepositoryInterface;
 use Modules\Operation\Repositories\StudentRequisition\StudentRequisitionRepositoryInterface;
+use Modules\Operation\Repositories\Student\StudentRepositoryInterface;
+
 
 class StudentRequisitionService implements StudentRequisitionServiceInterface
 {
     public function __construct(
         protected StudentRequisitionRepositoryInterface $requisitionRepository,
-        protected DocumentRepositoryInterface $documentRepository
+        protected DocumentRepositoryInterface $documentRepository,
+        protected StudentRepositoryInterface $studentRepository
     ) {}
+
+    public function listOrderingByStatus(?RequisitionListParamsDto $listParams = null): LengthAwarePaginator
+    {
+        return $this->requisitionRepository->listOrderingByStatus($listParams);
+    }
 
     public function hasApprovedRequisition(int $studentId): bool
     {
@@ -57,6 +67,8 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
                     $documentIds
                 );
             }
+
+            $this->syncStudent($studentId, $requisitionData);
 
             return [
                 'protocol' => $requisition->protocol,
@@ -104,5 +116,60 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
         }
 
         return $documentIds;
+    }
+
+
+    protected function syncStudent(int $studentId, StudentRequisitionDto $requisitionData): void
+    {
+        $studentData = [
+            'user_id' => $studentId,
+            'institution_course_id' => $requisitionData->institution_course_id,
+            'city_of_origin' => $requisitionData->city,
+            'status' => $requisitionData->status->value,
+        ];
+
+        $student = $this->studentRepository->findByUserId($studentId);
+
+        if ($student) {
+            $this->studentRepository->update($student, $studentData);
+        } else {
+            $this->studentRepository->create($studentData);
+        }
+    }
+
+    public function approve(int $id): StudentRequisition
+    {
+        $requisition = $this->requisitionRepository->find($id);
+        
+        $updatedRequisition = $this->requisitionRepository->update($requisition, new StudentRequisitionDto(
+            student_id: $requisition->student_id,
+            semester: $requisition->semester,
+            status: RequisitionStatus::Approved
+        ));
+
+        $this->syncStudent($requisition->student_id, new StudentRequisitionDto(
+            student_id: $requisition->student_id,
+            semester: $requisition->semester,
+            status: RequisitionStatus::Approved,
+            institution_course_id: $requisition->institution_course_id,
+            city: $requisition->city
+        ));
+
+        return $updatedRequisition;
+    }
+
+    public function reprove(int $id, array $reprovedFields, ?string $reason): StudentRequisition
+    {
+        $requisition = $this->requisitionRepository->find($id);
+
+        $updatedRequisition = $this->requisitionRepository->update($requisition, new StudentRequisitionDto(
+            student_id: $requisition->student_id,
+            semester: $requisition->semester,
+            status: RequisitionStatus::Reproved,
+            deny_reason: $reason,
+            reproved_fields: $reprovedFields
+        ));
+
+        return $updatedRequisition;
     }
 }

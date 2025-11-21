@@ -20,10 +20,10 @@ class StudentRequisitionDto
         public ?DateTimeInterface $birth_date = null,
         public ?string $institution_email = null,
         public ?string $institution_registration = null,
-        public ?int $institution_id = null,
-        public ?int $course_id = null,
+        public ?int $institution_course_id = null,
         public ?AtuationForm $atuation_form = null,
         public ?string $deny_reason = null,
+        public ?array $reproved_fields = null,
     ) {}
 
     public function toArray(): array
@@ -41,10 +41,10 @@ class StudentRequisitionDto
             'birth_date' => $this->birth_date,
             'institution_email' => $this->institution_email,
             'institution_registration' => $this->institution_registration,
-            'institution_id' => $this->institution_id,
-            'course_id' => $this->course_id,
+            'institution_course_id' => $this->institution_course_id,
             'atuation_form' => $this->atuation_form,
             'deny_reason' => $this->deny_reason,
+            'reproved_fields' => $this->reproved_fields,
         ], fn ($value): bool => $value !== null);
     }
 }

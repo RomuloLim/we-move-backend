@@ -26,8 +26,7 @@ class StudentRequisitionRequest extends FormRequest
             'institution_email' => ['required', 'email', 'max:255'],
             'institution_registration' => ['required', 'string', 'max:100'],
             'semester' => ['required', 'integer', 'min:1'],
-            'institution_id' => ['required', 'exists:institutions,id'],
-            'course_id' => ['required', 'exists:courses,id'],
+            'institution_course_id' => ['required', 'exists:institution_courses,id'],
             'atuation_form' => ['required', Rule::enum(AtuationForm::class)],
 
             // Documents as file uploads
@@ -54,10 +53,8 @@ class StudentRequisitionRequest extends FormRequest
             'semester.required' => 'O semestre é obrigatório.',
             'semester.integer' => 'O semestre deve ser um número.',
             'semester.min' => 'O semestre deve ser no mínimo 1.',
-            'institution_id.required' => 'A universidade é obrigatória.',
-            'institution_id.exists' => 'A universidade selecionada não existe.',
-            'course_id.required' => 'O curso é obrigatório.',
-            'course_id.exists' => 'O curso selecionado não existe.',
+            'institution_course_id.required' => 'O curso da instituição é obrigatório.',
+            'institution_course_id.exists' => 'O curso da instituição selecionado não existe.',
             'atuation_form.required' => 'A forma de atuação é obrigatória.',
             'residency_proof.required' => 'O comprovante de endereço é obrigatório.',
             'identification_document.required' => 'O documento com foto é obrigatório.',
@@ -85,8 +82,7 @@ class StudentRequisitionRequest extends FormRequest
             birth_date: $this->date('birth_date'),
             institution_email: $this->input('institution_email'),
             institution_registration: $this->input('institution_registration'),
-            institution_id: $this->input('institution_id'),
-            course_id: $this->input('course_id'),
+            institution_course_id: $this->input('institution_course_id'),
             atuation_form: AtuationForm::from($this->input('atuation_form')),
         );
 

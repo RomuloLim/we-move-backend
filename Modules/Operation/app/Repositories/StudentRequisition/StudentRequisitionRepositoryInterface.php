@@ -2,11 +2,17 @@
 
 namespace Modules\Operation\Repositories\StudentRequisition;
 
-use Modules\Operation\DTOs\StudentRequisitionDto;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Modules\Operation\DTOs\{RequisitionListParamsDto, StudentRequisitionDto};
 use Modules\Operation\Models\StudentRequisition;
 
 interface StudentRequisitionRepositoryInterface
 {
+    /**
+     * List requisitions ordered by status.
+     */
+    public function listOrderingByStatus(?RequisitionListParamsDto $listParams = null): LengthAwarePaginator;
+
     /**
      * Find a requisition by ID.
      */

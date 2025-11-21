@@ -3,11 +3,17 @@
 namespace Modules\Operation\Services;
 
 use Illuminate\Http\UploadedFile;
-use Modules\Operation\DTOs\StudentRequisitionDto;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Modules\Operation\DTOs\{RequisitionListParamsDto, StudentRequisitionDto};
 use Modules\Operation\Models\StudentRequisition;
 
 interface StudentRequisitionServiceInterface
 {
+    /**
+     * List requisitions ordering by status.
+     */
+    public function listOrderingByStatus(?RequisitionListParamsDto $listParams = null): LengthAwarePaginator;
+
     /**
      * Check if a student has an approved requisition.
      */
@@ -34,4 +40,8 @@ interface StudentRequisitionServiceInterface
      * Generate a unique protocol.
      */
     public function generateUniqueProtocol(): string;
+
+    public function approve(int $id): StudentRequisition;
+
+    public function reprove(int $id, array $reprovedFields, ?string $reason): StudentRequisition;
 }
