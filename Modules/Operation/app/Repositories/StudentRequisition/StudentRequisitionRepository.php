@@ -12,6 +12,7 @@ class StudentRequisitionRepository implements StudentRequisitionRepositoryInterf
     public function listOrderingByStatus(?RequisitionListParamsDto $listParams = null): LengthAwarePaginator
     {
         $query = StudentRequisition::query()
+            ->with(['student', 'institutionCourse'])
             ->when($listParams?->protocol, fn ($q, $v) => $q->where('protocol', 'ilike', "%$v%"))
             ->when($listParams?->status, fn ($q, $v) => $q->where('status', $v))
             ->when($listParams?->institution_course_id, fn ($q, $v) => $q->where('institution_course_id', $v))

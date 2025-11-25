@@ -3,6 +3,7 @@
 namespace Modules\Operation\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Modules\Auth\Resources\UserResource;
 
 class StudentRequisitionResource extends JsonResource
 {
@@ -29,6 +30,7 @@ class StudentRequisitionResource extends JsonResource
             'atuation_form' => $this->atuation_form,
             'deny_reason' => $this->deny_reason,
             'institution_course' => new InstitutionCourseResource($this->whenLoaded('institutionCourse')),
+            'student' => $this->whenLoaded('student'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

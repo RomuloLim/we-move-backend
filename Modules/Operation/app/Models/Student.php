@@ -4,7 +4,9 @@ namespace Modules\Operation\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Operation\Database\Factories\StudentFactory;
+use Modules\User\Models\User;
 
 class Student extends Model
 {
@@ -19,6 +21,14 @@ class Student extends Model
         'status',
         'qrcode_token',
     ];
+
+    protected $with = [
+        'user',
+    ];
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     protected static function newFactory(): StudentFactory
     {
