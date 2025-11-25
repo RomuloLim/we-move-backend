@@ -16,7 +16,7 @@ class InstitutionRepository implements InstitutionRepositoryInterface
     public function getOrderedByCourse(int $courseId): LengthAwarePaginator
     {
         $institutions = Institution::query()
-            ->select('institutions.*')
+            ->selectRaw('institutions.*, institution_courses.course_id is not null as is_linked')
             ->leftJoin('institution_courses', 'institutions.id', '=', 'institution_courses.institution_id')
             ->where('institution_courses.course_id', $courseId)
             ->orWhereNull('institution_courses.course_id')

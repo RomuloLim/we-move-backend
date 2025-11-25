@@ -25,6 +25,7 @@ class InstitutionResource extends JsonResource
             'city' => $this->city,
             'state' => $this->state,
             'zip_code' => $this->zip_code,
+            'is_linked' => $this->is_linked,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
