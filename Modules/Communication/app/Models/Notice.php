@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany};
 use Modules\Communication\Database\Factories\NoticeFactory;
 use Modules\Communication\Enums\NoticeType;
-use Modules\Operation\Models\Route;
+use Modules\Logistics\Models\Route;
 use Modules\User\Models\User;
 
 class Notice extends Model

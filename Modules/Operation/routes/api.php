@@ -1,32 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Operation\Http\Controllers\{CourseController, InstitutionController, InstitutionCourseController, RouteController, StopController, StudentRequisitionController, VehicleController};
+use Modules\Operation\Http\Controllers\{CourseController, InstitutionController, InstitutionCourseController, StudentRequisitionController};
 use Modules\User\Enums\Permission;
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
-    $viewVehiclesPermission = Permission::ViewVehicles->value;
-
-    Route::middleware("permission:{$viewVehiclesPermission}")->group(function () {
-        Route::get('vehicles', [VehicleController::class, 'index'])
-            ->name('operation.vehicles.index');
-
-        Route::get('vehicles/{vehicle}', [VehicleController::class, 'show'])
-            ->name('operation.vehicles.show');
-    });
-
-    $manageVehiclesPermission = Permission::ManageVehicles->value;
-    Route::middleware("permission:{$manageVehiclesPermission}")->group(function () {
-        Route::post('vehicles', [VehicleController::class, 'store'])
-            ->name('operation.vehicles.store');
-
-        Route::put('vehicles/{vehicle}', [VehicleController::class, 'update'])
-            ->name('operation.vehicles.update');
-
-        Route::delete('vehicles/{vehicle}', [VehicleController::class, 'destroy'])
-            ->name('operation.vehicles.destroy');
-    });
-
     // Institution routes
     $viewInstitutionsPermission = Permission::ViewInstitutions->value;
     Route::prefix('institutions')->middleware("permission:{$viewInstitutionsPermission}")->group(function () {
@@ -83,50 +61,6 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         Route::delete('courses/{course}', [CourseController::class, 'destroy'])
             ->name('operation.courses.destroy');
-    });
-
-    // Route routes
-    $viewRoutesPermission = Permission::ViewRoutes->value;
-    Route::prefix('routes')->middleware("permission:{$viewRoutesPermission}")->group(function () {
-        Route::get('/', [RouteController::class, 'index'])
-            ->name('operation.routes.index');
-
-        Route::get('/{route}', [RouteController::class, 'show'])
-            ->name('operation.routes.show');
-    });
-
-    $manageRoutesPermission = Permission::ManageRoutes->value;
-    Route::middleware("permission:{$manageRoutesPermission}")->group(function () {
-        Route::post('routes', [RouteController::class, 'store'])
-            ->name('operation.routes.store');
-
-        Route::put('routes/{route}', [RouteController::class, 'update'])
-            ->name('operation.routes.update');
-
-        Route::delete('routes/{route}', [RouteController::class, 'destroy'])
-            ->name('operation.routes.destroy');
-    });
-
-    // Stop routes
-    $viewStopsPermission = Permission::ViewStops->value;
-    Route::prefix('stops')->middleware("permission:{$viewStopsPermission}")->group(function () {
-        Route::get('/', [StopController::class, 'index'])
-            ->name('operation.stops.index');
-
-        Route::get('/{stop}', [StopController::class, 'show'])
-            ->name('operation.stops.show');
-    });
-
-    $manageStopsPermission = Permission::ManageStops->value;
-    Route::middleware("permission:{$manageStopsPermission}")->group(function () {
-        Route::post('stops', [StopController::class, 'store'])
-            ->name('operation.stops.store');
-
-        Route::patch('stops/update-order', [StopController::class, 'updateOrder'])
-            ->name('operation.stops.update_order');
-
-        Route::delete('stops/{stop}', [StopController::class, 'destroy'])
-            ->name('operation.stops.destroy');
     });
 
     // Student Requisition routes
