@@ -24,6 +24,16 @@ class NoticeController extends Controller
         return NoticeResource::collection($notices)->response();
     }
 
+    public function unread(ListNoticeRequest $request): JsonResponse
+    {
+        $userId = Auth::id();
+        $perPage = $request->input('per_page', 5);
+
+        $notices = $this->service->getUnreadForUser($userId, $perPage);
+
+        return NoticeResource::collection($notices)->response();
+    }
+
     public function store(StoreNoticeRequest $request): JsonResponse
     {
         $authorUserId = Auth::id();

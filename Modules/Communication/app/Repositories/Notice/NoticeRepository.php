@@ -21,6 +21,17 @@ class NoticeRepository implements NoticeRepositoryInterface
         return $query->paginate($perPage);
     }
 
+    public function getUnreadForUser(int $userId, int $perPage = 5): LengthAwarePaginator
+    {
+        return Notice::query()
+            ->with(['author', 'route'])
+            ->whereDoesntHave('readByUsers', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->oldest()
+            ->paginate($perPage);
+    }
+
     public function find(int $id): ?Notice
     {
         return Notice::query()->find($id);

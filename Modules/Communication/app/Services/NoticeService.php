@@ -21,6 +21,11 @@ class NoticeService implements NoticeServiceInterface
         return $this->noticeRepository->list($routeIds, $perPage);
     }
 
+    public function getUnreadForUser(int $userId, int $perPage = 5): LengthAwarePaginator
+    {
+        return $this->noticeRepository->getUnreadForUser($userId, $perPage);
+    }
+
     public function find(int $id): ?Notice
     {
         return $this->noticeRepository->find($id);

@@ -16,6 +16,11 @@ interface NoticeRepositoryInterface
     public function list(?array $routeIds = null, int $perPage = 5): LengthAwarePaginator;
 
     /**
+     * Get unread notices for a specific user, ordered from oldest to newest.
+     */
+    public function getUnreadForUser(int $userId, int $perPage = 5): LengthAwarePaginator;
+
+    /**
      * Find a notice by ID.
      */
     public function find(int $id): ?Notice;

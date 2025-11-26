@@ -253,4 +253,86 @@ class NoticeTest extends TestCase
         $data = $response->json('data');
         $this->assertEquals('Aviso Novo', $data[0]['title']);
     }
+
+    public function test_can_get_unread_notices_for_user(): void
+    {
+        $user = $this->userActingAs(UserType::Student);
+
+        $notice1 = Notice::factory()->create(['created_at' => now()->subDays(3)]);
+        $notice2 = Notice::factory()->create(['created_at' => now()->subDays(2)]);
+        $notice3 = Notice::factory()->create(['created_at' => now()->subDay()]);
+
+        // Mark notice2 as read by the user
+        $notice2->readByUsers()->attach($user->id, ['read_at' => now()]);
+
+        $response = $this->getJson('/api/v1/notices/unread');
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data');
+
+        $data = $response->json('data');
+        // Should be ordered from oldest to newest
+        $this->assertEquals($notice1->id, $data[0]['id']);
+        $this->assertEquals($notice3->id, $data[1]['id']);
+    }
+
+    public function test_unread_notices_are_ordered_from_oldest_to_newest(): void
+    {
+        $user = $this->userActingAs(UserType::Student);
+
+        $oldest = Notice::factory()->create(['title' => 'Mais Antiga', 'created_at' => now()->subDays(5)]);
+        $middle = Notice::factory()->create(['title' => 'Intermediária', 'created_at' => now()->subDays(3)]);
+        $newest = Notice::factory()->create(['title' => 'Mais Nova', 'created_at' => now()->subDay()]);
+
+        $response = $this->getJson('/api/v1/notices/unread');
+
+        $response->assertOk();
+
+        $data = $response->json('data');
+        $this->assertEquals('Mais Antiga', $data[0]['title']);
+        $this->assertEquals('Intermediária', $data[1]['title']);
+        $this->assertEquals('Mais Nova', $data[2]['title']);
+    }
+
+    public function test_unread_only_shows_notices_not_read_by_user(): void
+    {
+        $user = $this->userActingAs(UserType::Student);
+        $otherUser = User::factory()->create(['user_type' => UserType::Student->value]);
+
+        $notice1 = Notice::factory()->create();
+        $notice2 = Notice::factory()->create();
+        $notice3 = Notice::factory()->create();
+
+        // Current user has read notice1
+        $notice1->readByUsers()->attach($user->id, ['read_at' => now()]);
+
+        // Another user has read notice2 (should not affect the result)
+        $notice2->readByUsers()->attach($otherUser->id, ['read_at' => now()]);
+
+        $response = $this->getJson('/api/v1/notices/unread');
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data');
+
+        $data = $response->json('data');
+        $returnedIds = array_column($data, 'id');
+
+        $this->assertNotContains($notice1->id, $returnedIds);
+        $this->assertContains($notice2->id, $returnedIds);
+        $this->assertContains($notice3->id, $returnedIds);
+    }
+
+    public function test_unread_respects_pagination(): void
+    {
+        $user = $this->userActingAs(UserType::Student);
+
+        Notice::factory()->count(10)->create();
+
+        $response = $this->getJson('/api/v1/notices/unread?per_page=3');
+
+        $response->assertOk()
+            ->assertJsonCount(3, 'data')
+            ->assertJsonPath('meta.per_page', 3)
+            ->assertJsonPath('meta.total', 10);
+    }
 }
