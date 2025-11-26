@@ -5,7 +5,7 @@ namespace Modules\Communication\Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Communication\Enums\NoticeType;
 use Modules\Communication\Models\Notice;
-use Modules\Operation\Models\Route;
+use Modules\Logistics\Models\Route;
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
 

@@ -8,7 +8,7 @@ use Laravel\Sanctum\Sanctum;
 use Modules\Communication\Enums\NoticeType;
 use Modules\Communication\Events\NoticeCreated;
 use Modules\Communication\Models\Notice;
-use Modules\Operation\Models\Route;
+use Modules\Logistics\Models\Route;
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
 use Tests\TestCase;

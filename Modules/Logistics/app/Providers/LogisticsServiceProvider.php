@@ -1,19 +1,19 @@
 <?php
 
-namespace Modules\Operation\Providers;
+namespace Modules\Logistics\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-class OperationServiceProvider extends ServiceProvider
+class LogisticsServiceProvider extends ServiceProvider
 {
     use PathNamespace;
 
-    protected string $name = 'Operation';
+    protected string $name = 'Logistics';
 
-    protected string $nameLower = 'operation';
+    protected string $nameLower = 'logistics';
 
     /**
      * Boot the application events.
@@ -34,12 +34,6 @@ class OperationServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
-        $this->app->register(InstitutionServiceProvider::class);
-        $this->app->register(CourseServiceProvider::class);
-        $this->app->register(InstitutionCourseServiceProvider::class);
-        $this->app->register(DocumentServiceProvider::class);
-        $this->app->register(StudentRequisitionServiceProvider::class);
-        $this->app->register(StudentServiceProvider::class);
     }
 
     /**
@@ -128,5 +122,18 @@ class OperationServiceProvider extends ServiceProvider
     public function provides(): array
     {
         return [];
+    }
+
+    private function getPublishableViewPaths(): array
+    {
+        $paths = [];
+
+        foreach (config('view.paths') as $path) {
+            if (is_dir($path . '/modules/' . $this->nameLower)) {
+                $paths[] = $path . '/modules/' . $this->nameLower;
+            }
+        }
+
+        return $paths;
     }
 }
