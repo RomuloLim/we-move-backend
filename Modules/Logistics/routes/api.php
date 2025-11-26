@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Logistics\Http\Controllers\{RouteController, StopController, VehicleController};
+use Modules\Logistics\Http\Controllers\{RouteController, StopController, UserRouteController, VehicleController};
 use Modules\User\Enums\Permission;
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
@@ -69,5 +69,18 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         Route::delete('stops/{stop}', [StopController::class, 'destroy'])
             ->name('logistics.stops.destroy');
+    });
+
+    // User Routes - Gerenciamento de vínculos entre usuários e rotas
+    $manageRoutesPermission = Permission::ManageRoutes->value;
+    Route::prefix('user-routes')->middleware("permission:{$manageRoutesPermission}")->group(function () {
+        Route::get('/user/{userId}', [UserRouteController::class, 'index'])
+            ->name('logistics.user_routes.index');
+
+        Route::post('/link', [UserRouteController::class, 'linkRoutes'])
+            ->name('logistics.user_routes.link');
+
+        Route::delete('/unlink', [UserRouteController::class, 'unlinkRoutes'])
+            ->name('logistics.user_routes.unlink');
     });
 });
