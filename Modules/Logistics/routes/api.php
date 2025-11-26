@@ -77,6 +77,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::get('/user/{userId}', [UserRouteController::class, 'index'])
             ->name('logistics.user_routes.index');
 
+        Route::get('/all-ordered-by-user/{userId}', [UserRouteController::class, 'getAllOrderedByUser'])
+            ->name('logistics.user_routes.all_ordered');
+
         Route::post('/link', [UserRouteController::class, 'linkRoutes'])
             ->name('logistics.user_routes.link');
 

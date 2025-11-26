@@ -389,4 +389,103 @@ class UserRouteLinkingTest extends TestCase
 
         $this->assertEquals(2, $remainingLinks);
     }
+
+    public function test_can_list_all_routes_ordered_by_user_links(): void
+    {
+        $this->userActingAs(UserType::Admin);
+
+        $user = User::factory()->create();
+
+        // Create 5 routes
+        $allRoutes = Route::factory()->count(5)->create();
+
+        // Link only 2 routes to the user
+        $linkedRoutes = $allRoutes->take(2);
+
+        foreach ($linkedRoutes as $route) {
+            DB::table('user_routes')->insert([
+                'user_id' => $user->id,
+                'route_id' => $route->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        $response = $this->getJson("/api/v1/user-routes/all-ordered-by-user/{$user->id}");
+
+        $response->assertOk()
+            ->assertJsonCount(5, 'data')
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'route_name',
+                        'description',
+                        'is_linked',
+                        'created_at',
+                        'updated_at',
+                    ],
+                ],
+            ]);
+
+        // Verify the first 2 routes have is_linked = true
+        $data = $response->json('data');
+        $this->assertTrue($data[0]['is_linked']);
+        $this->assertTrue($data[1]['is_linked']);
+
+        // Verify the remaining routes have is_linked = false
+        $this->assertFalse($data[2]['is_linked']);
+        $this->assertFalse($data[3]['is_linked']);
+        $this->assertFalse($data[4]['is_linked']);
+    }
+
+    public function test_all_routes_ordered_shows_all_routes_when_none_linked(): void
+    {
+        $this->userActingAs(UserType::Admin);
+
+        $user = User::factory()->create();
+        Route::factory()->count(3)->create();
+
+        $response = $this->getJson("/api/v1/user-routes/all-ordered-by-user/{$user->id}");
+
+        $response->assertOk()
+            ->assertJsonCount(3, 'data');
+
+        // All routes should have is_linked = false
+        $data = $response->json('data');
+
+        foreach ($data as $route) {
+            $this->assertFalse($route['is_linked']);
+        }
+    }
+
+    public function test_all_routes_ordered_shows_all_routes_when_all_linked(): void
+    {
+        $this->userActingAs(UserType::Admin);
+
+        $user = User::factory()->create();
+        $routes = Route::factory()->count(3)->create();
+
+        // Link all routes
+        foreach ($routes as $route) {
+            DB::table('user_routes')->insert([
+                'user_id' => $user->id,
+                'route_id' => $route->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        $response = $this->getJson("/api/v1/user-routes/all-ordered-by-user/{$user->id}");
+
+        $response->assertOk()
+            ->assertJsonCount(3, 'data');
+
+        // All routes should have is_linked = true
+        $data = $response->json('data');
+
+        foreach ($data as $route) {
+            $this->assertTrue($route['is_linked']);
+        }
+    }
 }

@@ -4,12 +4,11 @@ namespace Modules\Operation\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Operation\Enums\{AtuationForm, RequisitionStatus};
-use Modules\Operation\Models\{Course, Institution, StudentRequisition};
-use Modules\User\Enums\UserType;
-use Modules\User\Models\User;
+use Modules\Operation\Models\{Course, Institution, Student, StudentRequisition};
 
 class StudentRequisitionFactory extends Factory
 {
+    protected int $institutionCourseId;
     /**
      * The name of the factory's corresponding model.
      */
@@ -21,7 +20,10 @@ class StudentRequisitionFactory extends Factory
     public function definition(): array
     {
         return [
-            'student_id' => User::factory()->create(['user_type' => UserType::Student->value])->id,
+            'institution_course_id' => $this->generateInstitutionCourseId(),
+            'student_id' => Student::factory()->create([
+                'institution_course_id' => $this->institutionCourseId ?? $this->generateInstitutionCourseId(),
+            ])->id,
             'semester' => $this->faker->numberBetween(1, 10),
             'protocol' => 'REQ-' . date('Y') . '-' . strtoupper($this->faker->unique()->bothify('????????')),
             'status' => RequisitionStatus::Pending,
@@ -33,13 +35,6 @@ class StudentRequisitionFactory extends Factory
             'birth_date' => $this->faker->date('Y-m-d', '-18 years'),
             'institution_email' => $this->faker->unique()->safeEmail(),
             'institution_registration' => $this->faker->unique()->numerify('########'),
-
-            'institution_course_id' => function () {
-                $institution = Institution::factory()->create();
-                $course = Course::factory()->create();
-                $institution->courses()->attach($course->id);
-                return $institution->courses()->first()->pivot->id;
-            },
             'atuation_form' => $this->faker->randomElement(AtuationForm::cases()),
             'deny_reason' => null,
         ];
@@ -74,5 +69,16 @@ class StudentRequisitionFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => RequisitionStatus::Expired,
         ]);
+    }
+
+    private function generateInstitutionCourseId(): int
+    {
+        $institution = Institution::factory()->create();
+        $course = Course::factory()->create();
+        $institution->courses()->attach($course->id);
+
+        $this->institutionCourseId = $institution->courses()->first()->pivot->id;
+
+        return $this->institutionCourseId;
     }
 }
