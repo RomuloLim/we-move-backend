@@ -29,6 +29,6 @@ class Playground extends Command
     {
 //        Route::truncate();
 //        Route::factory()->hasStops(5)->create();
-        dd(Route::with('firstStop', 'lastStop')->withCount('stops as stops_amount')->first()->toArray());
+        dd(Route::latest()->first()->id);
     }
 }
