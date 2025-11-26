@@ -1,5 +1,6 @@
 {
     "Auth": true,
     "User": true,
-    "Operation": true
+    "Operation": true,
+    "Communication": true
 }
