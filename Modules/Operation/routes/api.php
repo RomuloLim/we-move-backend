@@ -140,6 +140,9 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::middleware("permission:{$viewRequisitionsPermission}")->group(function () {
         Route::get('requisitions', [StudentRequisitionController::class, 'index'])
             ->name('operation.requisitions.index');
+
+        Route::get('requisitions/{id}', [StudentRequisitionController::class, 'find'])
+            ->name('operation.requisitions.show');
     });
 
     $manageRequisitionsPermission = Permission::ManageRequisitions->value;

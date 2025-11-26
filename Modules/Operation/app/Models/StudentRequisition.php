@@ -4,7 +4,7 @@ namespace Modules\Operation\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasOneThrough};
 use Modules\Operation\Database\Factories\StudentRequisitionFactory;
 use Modules\Operation\Enums\{AtuationForm, RequisitionStatus};
 use Modules\User\Models\User;
@@ -64,6 +64,36 @@ class StudentRequisition extends Model
     public function institutionCourse(): BelongsTo
     {
         return $this->belongsTo(InstitutionCourse::class);
+    }
+
+    /**
+     * Get the institution through the institution course.
+     */
+    public function institution(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Institution::class,
+            InstitutionCourse::class,
+            'id',
+            'id',
+            'institution_course_id',
+            'institution_id'
+        );
+    }
+
+    /**
+     * Get the course through the institution course.
+     */
+    public function course(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Course::class,
+            InstitutionCourse::class,
+            'id',
+            'id',
+            'institution_course_id',
+            'course_id'
+        );
     }
 
     /**

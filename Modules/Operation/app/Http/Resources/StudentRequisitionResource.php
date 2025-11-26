@@ -29,8 +29,10 @@ class StudentRequisitionResource extends JsonResource
             'birth_date' => $this->birth_date,
             'atuation_form' => $this->atuation_form,
             'deny_reason' => $this->deny_reason,
+            'reproved_fields' => $this->reproved_fields,
             'institution_course' => new InstitutionCourseResource($this->whenLoaded('institutionCourse')),
             'student' => $this->whenLoaded('student'),
+            'documents' => $this->whenLoaded('documents'),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

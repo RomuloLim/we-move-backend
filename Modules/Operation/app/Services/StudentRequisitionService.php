@@ -27,14 +27,17 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
         return $this->requisitionRepository->listOrderingByStatus($listParams);
     }
 
+
+    public function find(int $id): StudentRequisition
+    {
+        $data = $this->requisitionRepository->findOrFail($id);
+
+        return $data;
+    }
+
     public function hasApprovedRequisition(int $studentId): bool
     {
         return $this->requisitionRepository->hasApprovedRequisition($studentId);
-    }
-
-    public function getPendingRequisition(int $studentId): ?StudentRequisition
-    {
-        return $this->requisitionRepository->getPendingRequisition($studentId);
     }
 
     public function createOrUpdate(
@@ -137,10 +140,15 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
         }
     }
 
+    private function getPendingRequisition(int $studentId): ?StudentRequisition
+    {
+        return $this->requisitionRepository->getPendingRequisition($studentId);
+    }
+
     public function approve(int $id): StudentRequisition
     {
         $requisition = $this->requisitionRepository->find($id);
-        
+
         $updatedRequisition = $this->requisitionRepository->update($requisition, new StudentRequisitionDto(
             student_id: $requisition->student_id,
             semester: $requisition->semester,
@@ -151,8 +159,8 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
             student_id: $requisition->student_id,
             semester: $requisition->semester,
             status: RequisitionStatus::Approved,
-            institution_course_id: $requisition->institution_course_id,
-            city: $requisition->city
+            city: $requisition->city,
+            institution_course_id: $requisition->institution_course_id
         ));
 
         return $updatedRequisition;

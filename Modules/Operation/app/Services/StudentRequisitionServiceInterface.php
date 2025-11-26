@@ -14,15 +14,12 @@ interface StudentRequisitionServiceInterface
      */
     public function listOrderingByStatus(?RequisitionListParamsDto $listParams = null): LengthAwarePaginator;
 
+    public function find(int $id): StudentRequisition;
+
     /**
      * Check if a student has an approved requisition.
      */
     public function hasApprovedRequisition(int $studentId): bool;
-
-    /**
-     * Get pending requisition for a student.
-     */
-    public function getPendingRequisition(int $studentId): ?StudentRequisition;
 
     /**
      * Create or update a student requisition.

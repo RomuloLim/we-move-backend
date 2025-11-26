@@ -2,8 +2,10 @@
 
 namespace Modules\Operation\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany};
+use Illuminate\Support\Facades\Storage;
 use Modules\Operation\Enums\DocumentType;
 use Modules\User\Models\User;
 
@@ -19,6 +21,8 @@ class Document extends Model
         'uploaded_at',
     ];
 
+    protected $appends = ['full_url'];
+
     /**
      * Get the attributes that should be cast.
      */
@@ -28,6 +32,13 @@ class Document extends Model
             'type' => DocumentType::class,
             'uploaded_at' => 'datetime',
         ];
+    }
+
+    public function fullUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => Storage::temporaryUrl($this->file_url, now()->addMinutes(10))
+        );
     }
 
     /**

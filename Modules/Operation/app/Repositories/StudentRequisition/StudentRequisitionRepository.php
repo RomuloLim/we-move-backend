@@ -32,12 +32,22 @@ class StudentRequisitionRepository implements StudentRequisitionRepositoryInterf
 
     public function find(int $id): ?StudentRequisition
     {
-        return StudentRequisition::query()->find($id);
+        return StudentRequisition::with([
+            'student',
+            'institutionCourse',
+            'documents'
+        ])
+            ->find($id);
     }
 
     public function findOrFail(int $id): StudentRequisition
     {
-        return StudentRequisition::query()->findOrFail($id);
+        return StudentRequisition::with([
+            'student',
+            'institutionCourse.institution',
+            'institutionCourse.course',
+            'documents'
+        ])->findOrFail($id);
     }
 
     public function findByProtocol(string $protocol): ?StudentRequisition

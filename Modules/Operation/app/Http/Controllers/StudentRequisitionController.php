@@ -28,6 +28,13 @@ class StudentRequisitionController extends Controller
             ->setStatusCode(StatusCode::HTTP_OK);
     }
 
+    public function find(int $studentRequisitionId): JsonResponse
+    {
+        $requisition = $this->requisitionService->find($studentRequisitionId);
+
+        return StudentRequisitionResource::make($requisition)->response();
+    }
+
     /**
      * Store a newly created requisition in storage.
      */
@@ -35,7 +42,6 @@ class StudentRequisitionController extends Controller
     {
         $user = $request->user();
 
-        // Check if student has an approved requisition
         if ($this->requisitionService->hasApprovedRequisition($user->id)) {
             return response()->json([
                 'message' => 'Você já possui uma solicitação aprovada e não pode enviar outra.',
@@ -45,7 +51,6 @@ class StudentRequisitionController extends Controller
         try {
             $requisitionDto = $request->toDto();
 
-            // Collect files
             $files = [];
             $documentTypes = DocumentType::getFormFieldMapping();
 
@@ -55,7 +60,6 @@ class StudentRequisitionController extends Controller
                 }
             }
 
-            // Create or update requisition
         $result = $this->requisitionService->createOrUpdate(
                 $user->id,
                 $requisitionDto,
@@ -78,7 +82,6 @@ class StudentRequisitionController extends Controller
                 'message' => 'Erro ao processar solicitação. Por favor, tente novamente mais tarde.',
             ], StatusCode::HTTP_INTERNAL_SERVER_ERROR);
         }
-
     }
 
     public function approve(int $id): JsonResponse

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Modules\Operation\Models\Document;
 use Modules\Operation\Models\Route;
 use Modules\Operation\Models\Stop;
 
@@ -27,8 +28,8 @@ class Playground extends Command
      */
     public function handle()
     {
-//        Route::truncate();
-//        Route::factory()->hasStops(5)->create();
-        dd(Route::latest()->first()->id);
+        $a = Document::latest()->first();
+
+        dd($a->full_url);
     }
 }
