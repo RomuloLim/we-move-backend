@@ -53,12 +53,16 @@ class CourseController extends Controller
 
     public function destroy(int $id): JsonResponse
     {
-        $deleted = $this->service->delete($id);
+        try {
+            $deleted = $this->service->delete($id);
 
-        if (!$deleted) {
-            return response()->json(['message' => 'Curso não encontrado.'], StatusCode::HTTP_NOT_FOUND);
+            if (!$deleted) {
+                return response()->json(['message' => 'Curso não encontrado.'], StatusCode::HTTP_NOT_FOUND);
+            }
+
+            return response()->json(['message' => 'Curso removido com sucesso.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], StatusCode::HTTP_CONFLICT);
         }
-
-        return response()->json(['message' => 'Curso removido com sucesso.']);
     }
 }

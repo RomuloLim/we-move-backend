@@ -3,6 +3,7 @@
 namespace Modules\Operation\Services;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\QueryException;
 use Modules\Operation\DTOs\{CourseDto};
 use Modules\Operation\Models\{Course};
 use Modules\Operation\Repositories\Course\CourseRepositoryInterface;
@@ -38,6 +39,14 @@ class CourseService implements CourseServiceInterface
 
     public function delete(int $id): bool
     {
-        return $this->repository->delete($id);
+        try {
+            return $this->repository->delete($id);
+        } catch (QueryException $e) {
+            if ($e->getCode() === '23503') {
+                throw new \Exception('Não é possível remover este curso pois existem requisições de alunos vinculadas a ele.');
+            }
+
+            throw $e;
+        }
     }
 }

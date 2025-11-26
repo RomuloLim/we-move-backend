@@ -5,9 +5,10 @@ namespace Modules\Operation\Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Modules\Operation\Enums\CourseType;
-use Modules\Operation\Models\Course;
+use Modules\Operation\Models\{Course, Institution, InstitutionCourse, StudentRequisition};
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
+use Symfony\Component\HttpFoundation\Response as StatusCode;
 use Tests\TestCase;
 
 class CourseCrudTest extends TestCase
@@ -83,6 +84,30 @@ class CourseCrudTest extends TestCase
         $response = $this->deleteJson('/api/v1/courses/' . $course->id);
         $response->assertOk();
         $this->assertDatabaseMissing('courses', ['id' => $course->id]);
+    }
+
+    public function test_admin_cannot_delete_course_with_student_requisitions(): void
+    {
+        $this->userActingAs(UserType::Admin);
+
+        $student = User::factory()->create(['user_type' => UserType::Student->value]);
+        $course = Course::factory()->create();
+        $institution = Institution::factory()->create();
+
+        $institutionCourse = InstitutionCourse::create([
+            'institution_id' => $institution->id,
+            'course_id' => $course->id,
+        ]);
+
+        StudentRequisition::factory()->create([
+            'student_id' => $student->id,
+            'institution_course_id' => $institutionCourse->id,
+        ]);
+
+        $response = $this->deleteJson('/api/v1/courses/' . $course->id);
+        $response->assertStatus(StatusCode::HTTP_CONFLICT);
+        $response->assertJson(['message' => 'Não é possível remover este curso pois existem requisições de alunos vinculadas a ele.']);
+        $this->assertDatabaseHas('courses', ['id' => $course->id]);
     }
 
     public function test_student_can_view_courses(): void

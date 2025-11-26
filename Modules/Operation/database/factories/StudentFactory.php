@@ -4,7 +4,8 @@ namespace Modules\Operation\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Operation\Enums\RequisitionStatus;
-use Modules\Operation\Models\InstitutionCourse;
+use Modules\Operation\Models\Course;
+use Modules\Operation\Models\Institution;
 use Modules\Operation\Models\Student;
 use Modules\User\Models\User;
 
@@ -23,7 +24,12 @@ class StudentFactory extends Factory
         $statusCases = $this->faker->randomElement(RequisitionStatus::cases());
         return [
             'user_id' => User::factory(),
-            'institution_course_id' => InstitutionCourse::factory(),
+            'institution_course_id' => function () {
+                $institution = Institution::factory()->create();
+                $course = Course::factory()->create();
+                $institution->courses()->attach($course->id);
+                return $institution->courses()->first()->pivot->id;
+            },
             'city_of_origin' => fake()->city(),
             'status' => $statusCases->value,
             'qrcode_token' => fake()->uuid(),

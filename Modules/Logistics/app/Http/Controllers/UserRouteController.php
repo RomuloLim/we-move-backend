@@ -20,6 +20,13 @@ class UserRouteController extends Controller
         return UserRouteResource::collection($routes)->response();
     }
 
+    public function getAllOrderedByUser(Request $request, int $userId): JsonResponse
+    {
+        $routes = $this->service->getAllRoutesOrderedByUser($userId, $request->get('per_page', 15));
+
+        return UserRouteResource::collection($routes)->response();
+    }
+
     public function linkRoutes(LinkRoutesToUserRequest $request): JsonResponse
     {
         $linked = $this->service->linkRoutesToUser($request->toDto());

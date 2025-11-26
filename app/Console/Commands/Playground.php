@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Modules\Operation\Models\Document;
 use Modules\Operation\Models\Route;
 use Modules\Operation\Models\Stop;
+use Modules\Operation\Models\StudentRequisition;
 
 class Playground extends Command
 {
@@ -28,8 +29,17 @@ class Playground extends Command
      */
     public function handle()
     {
-        $a = Document::latest()->first();
+        $a = StudentRequisition::first();
+            dd($a->toArray());
+        // $docs = Document::factory()
+        // // ->hasRequisitions(10)
+        // ->count(3)
+        // ->create([
+        //     'student_id' => $a->student_id,
+        // ]);
 
-        dd($a->full_url);
+        // $docs->each(function ($doc) use ($a) {
+        //     $a->documents()->attach($doc->id);
+        // });
     }
 }
