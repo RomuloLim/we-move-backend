@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('cpf')->comment('Cadastro de Pessoa Física (CPF)');
-            $table->string('rg')->comment('Registro Geral (RG)');
+            $table->string('rg')->nullable()->comment('Registro Geral (RG)');
             $table->string('phone_contact')->nullable()->comment('Telefone de contato');
+            $table->string('gender')->nullable()->comment('Gênero do usuário');
             $table->string('profile_picture_url')->nullable()->comment('URL da foto de perfil');
             $table->unique(['cpf', 'rg']);
         });

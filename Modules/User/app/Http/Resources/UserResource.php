@@ -18,6 +18,8 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'cpf' => $this->cpf,
             'rg' => $this->rg,
+            'gender' => $this->gender,
+            'gender_label' => $this->gender_text,
             'user_type' => $this->user_type,
             'user_type_label' => $this->user_type->label(),
             'phone_contact' => $this->phone_contact,

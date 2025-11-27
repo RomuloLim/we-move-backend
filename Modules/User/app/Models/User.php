@@ -3,6 +3,7 @@
 namespace Modules\User\Models;
 
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'gender',
         'user_type',
         'cpf',
         'rg',
@@ -57,6 +59,18 @@ class User extends Authenticatable
             'password' => 'hashed',
             'user_type' => UserType::class,
         ];
+    }
+
+    public function genderText(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value, $attributes) => match ($attributes['gender']) {
+                'M' => 'Masculino',
+                'F' => 'Feminino',
+                'O' => 'Outro',
+                default => 'Não informado',
+            },
+        );
     }
 
     /**

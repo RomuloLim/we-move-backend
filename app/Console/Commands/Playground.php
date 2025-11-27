@@ -31,15 +31,5 @@ class Playground extends Command
     {
         $a = StudentRequisition::first();
             dd($a->toArray());
-        // $docs = Document::factory()
-        // // ->hasRequisitions(10)
-        // ->count(3)
-        // ->create([
-        //     'student_id' => $a->student_id,
-        // ]);
-
-        // $docs->each(function ($doc) use ($a) {
-        //     $a->documents()->attach($doc->id);
-        // });
     }
 }
