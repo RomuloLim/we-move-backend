@@ -5,6 +5,7 @@ namespace Modules\User\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -157,5 +158,22 @@ class User extends Authenticatable
     public function getPermissions(): array
     {
         return Permission::forUserType($this->user_type);
+    }
+
+    /**
+     * Rotas vinculadas ao usuário (motorista).
+     */
+    public function routes(): BelongsToMany
+    {
+        return $this->belongsToMany(\Modules\Logistics\Models\Route::class, 'user_routes')
+            ->withTimestamps();
+    }
+
+    /**
+     * Viagens do motorista.
+     */
+    public function trips(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\Modules\Logistics\Models\Trip::class, 'driver_id');
     }
 }

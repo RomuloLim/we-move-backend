@@ -33,6 +33,10 @@ enum Permission: string
     case ViewStops = 'view-stops';
     case ManageStops = 'manage-stops';
 
+    // Trip Permissions
+    case ViewTrips = 'view-trips';
+    case ManageTrips = 'manage-trips';
+
     // Student Requisition Permissions
     case SubmitRequisition = 'submit-requisition';
     case ViewRequisitions = 'view-requisitions';
@@ -75,6 +79,8 @@ enum Permission: string
             self::ManageRoutes,
             self::ViewStops,
             self::ManageStops,
+            self::ViewTrips,
+            self::ManageTrips,
             self::ViewRequisitions,
             self::ManageRequisitions,
         ];
@@ -86,6 +92,8 @@ enum Permission: string
             self::ViewVehicles,
             self::ViewRoutes,
             self::ViewStops,
+            self::ViewTrips,
+            self::ManageTrips,
         ];
     }
 
@@ -121,6 +129,8 @@ enum Permission: string
             self::ManageRoutes => 'Gerenciar rotas',
             self::ViewStops => 'Visualizar paradas',
             self::ManageStops => 'Gerenciar paradas',
+            self::ViewTrips => 'Visualizar viagens',
+            self::ManageTrips => 'Gerenciar viagens',
             self::SubmitRequisition => 'Enviar solicitação',
             self::ViewRequisitions => 'Visualizar solicitações',
             self::ManageRequisitions => 'Gerenciar solicitações',

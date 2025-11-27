@@ -5,7 +5,7 @@ namespace Modules\Operation\Services;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\QueryException;
 use Modules\Operation\DTOs\{CourseDto};
-use Modules\Operation\Models\{Course};
+use Modules\Operation\Models\{Course, StudentRequisition};
 use Modules\Operation\Repositories\Course\CourseRepositoryInterface;
 
 class CourseService implements CourseServiceInterface
@@ -39,6 +39,14 @@ class CourseService implements CourseServiceInterface
 
     public function delete(int $id): bool
     {
+        $hasStudentRequisitions = StudentRequisition::whereHas('institutionCourse', function ($query) use ($id) {
+            $query->where('course_id', $id);
+        })->exists();
+
+        if ($hasStudentRequisitions) {
+            throw new \Exception('Não é possível remover este curso pois existem requisições de alunos vinculadas a ele.');
+        }
+
         try {
             return $this->repository->delete($id);
         } catch (QueryException $e) {

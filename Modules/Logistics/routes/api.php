@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Logistics\Http\Controllers\{RouteController, StopController, UserRouteController, VehicleController};
+use Modules\Logistics\Http\Controllers\{RouteController, StopController, TripController, UserRouteController, VehicleController};
 use Modules\User\Enums\Permission;
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
@@ -85,5 +85,20 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         Route::delete('/unlink', [UserRouteController::class, 'unlinkRoutes'])
             ->name('logistics.user_routes.unlink');
+    });
+
+    // Trip routes
+    $viewTripsPermission = Permission::ViewTrips->value;
+    Route::get('trips/active', [TripController::class, 'activeTrips'])
+        ->middleware("permission:{$viewTripsPermission}")
+        ->name('logistics.trips.active');
+
+    $manageTripsPermission = Permission::ManageTrips->value;
+    Route::middleware("permission:{$manageTripsPermission}")->group(function () {
+        Route::post('trips/start', [TripController::class, 'start'])
+            ->name('logistics.trips.start');
+
+        Route::patch('trips/{trip}/complete', [TripController::class, 'complete'])
+            ->name('logistics.trips.complete');
     });
 });
