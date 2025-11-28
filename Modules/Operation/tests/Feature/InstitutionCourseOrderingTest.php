@@ -306,4 +306,3 @@ class InstitutionCourseOrderingTest extends TestCase
         return [$firstThreeIds, $lastTwoIds];
     }
 }
-

@@ -36,6 +36,7 @@ class LogisticsServiceProvider extends ServiceProvider
         $this->app->register(RouteServiceProvider::class);
         $this->app->register(UserRouteServiceProvider::class);
         $this->app->register(TripServiceProvider::class);
+        $this->app->register(BoardingServiceProvider::class);
     }
 
     /**

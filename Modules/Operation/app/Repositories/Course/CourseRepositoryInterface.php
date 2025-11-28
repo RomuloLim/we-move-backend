@@ -10,7 +10,7 @@ interface CourseRepositoryInterface
 {
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 
-      public function getOrderedByInstitution(int $institutionId): LengthAwarePaginator;
+    public function getOrderedByInstitution(int $institutionId): LengthAwarePaginator;
 
     /**
      * @return Course[]

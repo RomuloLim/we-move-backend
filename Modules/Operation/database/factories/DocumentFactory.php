@@ -26,4 +26,3 @@ class DocumentFactory extends Factory
         ];
     }
 }
-

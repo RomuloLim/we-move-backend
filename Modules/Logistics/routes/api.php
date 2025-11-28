@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Logistics\Http\Controllers\{RouteController, StopController, TripController, UserRouteController, VehicleController};
+use Modules\Logistics\Http\Controllers\{BoardingController, RouteController, StopController, TripController, UserRouteController, VehicleController};
 use Modules\User\Enums\Permission;
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
@@ -100,5 +100,14 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         Route::patch('trips/{trip}/complete', [TripController::class, 'complete'])
             ->name('logistics.trips.complete');
+    });
+
+    // Boarding routes - Embarque e desembarque
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('boardings/board', [BoardingController::class, 'board'])
+            ->name('logistics.boardings.board');
+
+        Route::post('boardings/unboard', [BoardingController::class, 'unboard'])
+            ->name('logistics.boardings.unboard');
     });
 });

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Modules\Operation\Enums\{DocumentType};
-use Modules\Operation\Http\Requests\{RequisitionListRequest, StudentRequisitionRequest, ReproveRequisitionRequest};
+use Modules\Operation\Http\Requests\{ReproveRequisitionRequest, RequisitionListRequest, StudentRequisitionRequest};
 use Modules\Operation\Http\Resources\StudentRequisitionResource;
 use Modules\Operation\Services\StudentRequisitionServiceInterface;
 use Symfony\Component\HttpFoundation\Response as StatusCode;
@@ -60,7 +60,7 @@ class StudentRequisitionController extends Controller
                 }
             }
 
-        $result = $this->requisitionService->createOrUpdate(
+            $result = $this->requisitionService->createOrUpdate(
                 $user->id,
                 $requisitionDto,
                 $files

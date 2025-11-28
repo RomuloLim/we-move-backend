@@ -16,7 +16,7 @@ class ListUserRequest extends FormRequest
     {
         return [
             'search' => ['sometimes', 'string', 'max:255'],
-            'type' => ['sometimes', 'string', new Enum(UserType::class)]
+            'type' => ['sometimes', 'string', new Enum(UserType::class)],
         ];
     }
 

@@ -3,9 +3,8 @@
 namespace Modules\User\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\{JsonResponse, Request};
+use Illuminate\Http\{JsonResponse};
 use Illuminate\Validation\ValidationException;
-use Modules\User\Enums\UserType;
 use Modules\User\Http\Requests\{CreateUserByAdminRequest, ListUserRequest, RegisterStudentRequest, UpdateUserRequest};
 use Modules\User\Http\Resources\UserResource;
 use Modules\User\Models\User;

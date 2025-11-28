@@ -5,8 +5,7 @@ namespace Modules\Operation\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Modules\Operation\Http\Requests\LinkCourseRequest;
-use Modules\Operation\Http\Resources\CourseResource;
-use Modules\Operation\Http\Resources\InstitutionResource;
+use Modules\Operation\Http\Resources\{CourseResource, InstitutionResource};
 use Modules\Operation\Services\InstitutionCourseServiceInterface;
 use Symfony\Component\HttpFoundation\Response as StatusCode;
 

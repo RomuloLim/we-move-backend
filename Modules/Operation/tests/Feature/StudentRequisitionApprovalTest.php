@@ -4,7 +4,7 @@ namespace Modules\Operation\Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Modules\Operation\Enums\{RequisitionStatus, ReprovedFieldEnum};
+use Modules\Operation\Enums\{ReprovedFieldEnum, RequisitionStatus};
 use Modules\Operation\Models\{Course, Institution, StudentRequisition};
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
@@ -87,7 +87,7 @@ class StudentRequisitionApprovalTest extends TestCase
             'status' => RequisitionStatus::Reproved->value,
             'deny_reason' => 'Documentos ilegíveis',
         ]);
-        
+
         $requisition->refresh();
         $this->assertEquals($data['reproved_fields'], $requisition->reproved_fields);
     }

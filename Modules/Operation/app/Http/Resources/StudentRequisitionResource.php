@@ -3,7 +3,6 @@
 namespace Modules\Operation\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Modules\Auth\Resources\UserResource;
 
 class StudentRequisitionResource extends JsonResource
 {

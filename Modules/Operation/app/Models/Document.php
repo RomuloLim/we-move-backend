@@ -14,6 +14,7 @@ use Modules\User\Models\User;
 class Document extends Model
 {
     use HasFactory;
+
     /**
      * The attributes that are mass assignable.
      */

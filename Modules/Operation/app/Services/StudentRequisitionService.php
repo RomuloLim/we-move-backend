@@ -5,14 +5,13 @@ namespace Modules\Operation\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\{DB};
+use Illuminate\Support\Str;
 use Modules\Operation\DTOs\{DocumentDto, RequisitionListParamsDto, StudentRequisitionDto};
-use Modules\Operation\Enums\DocumentType;
+use Modules\Operation\Enums\{DocumentType, RequisitionStatus};
 use Modules\Operation\Models\StudentRequisition;
-use Modules\Operation\Enums\RequisitionStatus;
 use Modules\Operation\Repositories\Document\DocumentRepositoryInterface;
-use Modules\Operation\Repositories\StudentRequisition\StudentRequisitionRepositoryInterface;
 use Modules\Operation\Repositories\Student\StudentRepositoryInterface;
-
+use Modules\Operation\Repositories\StudentRequisition\StudentRequisitionRepositoryInterface;
 
 class StudentRequisitionService implements StudentRequisitionServiceInterface
 {
@@ -26,7 +25,6 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
     {
         return $this->requisitionRepository->listOrderingByStatus($listParams);
     }
-
 
     public function find(int $id): StudentRequisition
     {
@@ -121,7 +119,6 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
         return $documentIds;
     }
 
-
     protected function syncStudent(int $studentId, StudentRequisitionDto $requisitionData): void
     {
         $studentData = [
@@ -129,6 +126,7 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
             'institution_course_id' => $requisitionData->institution_course_id,
             'city_of_origin' => $requisitionData->city,
             'status' => $requisitionData->status->value,
+            'qrcode_token' => Str::uuid()->toString(),
         ];
 
         $student = $this->studentRepository->findByUserId($studentId);

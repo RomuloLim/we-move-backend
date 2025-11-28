@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\{JsonResponse, Request};
 use Modules\Logistics\Http\Requests\{StartTripRequest};
 use Modules\Logistics\Http\Resources\TripResource;
-use Modules\Logistics\Services\TripServiceInterface;
+use Modules\Logistics\Services\{BoardingServiceInterface, TripServiceInterface};
 use Symfony\Component\HttpFoundation\Response as StatusCode;
 
 class TripController extends Controller
 {
-    public function __construct(protected TripServiceInterface $service) {}
+    public function __construct(
+        protected TripServiceInterface $service,
+        protected BoardingServiceInterface $boardingService
+    ) {}
 
     /**
      * List active trips (InProgress).
@@ -49,10 +52,14 @@ class TripController extends Controller
     /**
      * Completes a trip in progress.
      * Only the driver of the trip can complete it.
+     * Automatically unboards all students before completing.
      */
     public function complete(Request $request, int $id): JsonResponse
     {
         try {
+            // Desembarca todos os estudantes antes de finalizar a viagem
+            $this->boardingService->unboardAllStudents($id);
+
             $trip = $this->service->completeTrip($id, auth()->id());
 
             if (!$trip) {

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasOneThrough};
 use Modules\Operation\Database\Factories\StudentRequisitionFactory;
 use Modules\Operation\Enums\{AtuationForm, RequisitionStatus};
-use Modules\User\Models\User;
 
 class StudentRequisition extends Model
 {

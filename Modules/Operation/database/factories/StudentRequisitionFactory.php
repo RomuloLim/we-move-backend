@@ -25,6 +25,7 @@ class StudentRequisitionFactory extends Factory
             'street_name' => $this->faker->streetName(),
             'house_number' => $this->faker->buildingNumber(),
             'neighborhood' => $this->faker->citySuffix(),
+            'student_id' => Student::factory(),
             'city' => $this->faker->city(),
             'phone_contact' => $this->faker->phoneNumber(),
             'birth_date' => $this->faker->date('Y-m-d', '-18 years'),
