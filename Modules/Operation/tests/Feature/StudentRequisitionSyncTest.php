@@ -7,7 +7,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Modules\Operation\Enums\{AtuationForm, RequisitionStatus};
-use Modules\Operation\Models\{Course, Institution, StudentRequisition};
+use Modules\Operation\Models\{Course, Institution};
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
 use Tests\TestCase;
@@ -82,9 +82,9 @@ class StudentRequisitionSyncTest extends TestCase
         // Create initial requisition (which should create student)
         $data = $this->getValidRequisitionData();
         $data['city'] = 'Rio de Janeiro';
-        
+
         $this->postJson('/api/v1/requisitions', $data);
-        
+
         $this->assertDatabaseHas('students', [
             'user_id' => $student->id,
             'city_of_origin' => 'Rio de Janeiro',
@@ -102,7 +102,7 @@ class StudentRequisitionSyncTest extends TestCase
             'user_id' => $student->id,
             'city_of_origin' => 'Curitiba',
         ]);
-        
+
         // Ensure no duplicate student records
         $this->assertDatabaseCount('students', 1);
     }

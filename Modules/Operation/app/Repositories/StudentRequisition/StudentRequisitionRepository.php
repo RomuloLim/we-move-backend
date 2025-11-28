@@ -35,7 +35,7 @@ class StudentRequisitionRepository implements StudentRequisitionRepositoryInterf
         return StudentRequisition::with([
             'student',
             'institutionCourse',
-            'documents'
+            'documents',
         ])
             ->find($id);
     }
@@ -46,7 +46,7 @@ class StudentRequisitionRepository implements StudentRequisitionRepositoryInterf
             'student',
             'institutionCourse.institution',
             'institutionCourse.course',
-            'documents'
+            'documents',
         ])->findOrFail($id);
     }
 

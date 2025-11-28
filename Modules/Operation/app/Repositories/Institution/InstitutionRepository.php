@@ -20,7 +20,7 @@ class InstitutionRepository implements InstitutionRepositoryInterface
             ->leftJoin('institution_courses', 'institutions.id', '=', 'institution_courses.institution_id')
             ->where('institution_courses.course_id', $courseId)
             ->orWhereNull('institution_courses.course_id')
-            ->orderByRaw("CASE WHEN institution_courses.course_id IS NOT NULL THEN 0 ELSE 1 END");
+            ->orderByRaw('CASE WHEN institution_courses.course_id IS NOT NULL THEN 0 ELSE 1 END');
 
         return $institutions->paginate();
     }

@@ -3,10 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Modules\Operation\Models\Document;
-use Modules\Operation\Models\Route;
-use Modules\Operation\Models\Stop;
-use Modules\Operation\Models\StudentRequisition;
+use Modules\Operation\Models\{Student, StudentRequisition};
 
 class Playground extends Command
 {
@@ -29,7 +26,9 @@ class Playground extends Command
      */
     public function handle()
     {
+        StudentRequisition::factory()->count(10)->create();
+
         $a = StudentRequisition::first();
-            dd($a->toArray());
+        dd($a->toArray());
     }
 }

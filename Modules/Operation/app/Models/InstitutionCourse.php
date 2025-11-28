@@ -2,9 +2,10 @@
 
 namespace Modules\Operation\Models;
 
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, Pivot};
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 
-class InstitutionCourse extends Pivot
+class InstitutionCourse extends Model
 {
     protected $table = 'institution_courses';
 
@@ -30,5 +31,13 @@ class InstitutionCourse extends Pivot
     public function course(): BelongsTo
     {
         return $this->belongsTo(Course::class);
+    }
+
+    /**
+     * Get the student requisitions for this institution course.
+     */
+    public function studentRequisitions(): HasMany
+    {
+        return $this->hasMany(StudentRequisition::class);
     }
 }

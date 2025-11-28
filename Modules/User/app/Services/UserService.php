@@ -76,7 +76,7 @@ class UserService
                         ->orWhere('rg', $search);
                 });
             })
-            ->when($searchParams->type, fn(Builder $q) => $q->where('user_type', $searchParams->type->value))
+            ->when($searchParams->type, fn (Builder $q) => $q->where('user_type', $searchParams->type->value))
             ->orderBy('created_at', 'desc');
 
         return $query->paginate($searchParams->perPage);
