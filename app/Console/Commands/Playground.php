@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Modules\Operation\Models\{Student, StudentRequisition};
+use Modules\Operation\Models\{StudentRequisition};
 
 class Playground extends Command
 {

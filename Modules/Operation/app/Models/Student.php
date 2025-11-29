@@ -36,6 +36,11 @@ class Student extends Model
         return $this->hasMany(\Modules\Logistics\Models\Boarding::class);
     }
 
+    public function requisitions(): HasMany
+    {
+        return $this->hasMany(StudentRequisition::class, 'student_id', 'user_id');
+    }
+
     protected static function newFactory(): StudentFactory
     {
         return StudentFactory::new();

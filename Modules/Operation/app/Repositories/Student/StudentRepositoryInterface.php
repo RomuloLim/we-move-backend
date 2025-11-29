@@ -9,4 +9,6 @@ interface StudentRepositoryInterface
     public function create(array $data): Student;
     public function update(Student $student, array $data): Student;
     public function findByUserId(int $userId): ?Student;
+    public function findById(int $id): ?Student;
+    public function findByIdWithFullData(int $id): ?Student;
 }
