@@ -46,7 +46,7 @@ class Document extends Model
     public function fullUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => Storage::temporaryUrl($this->file_url, now()->addMinutes(10))
+            get: fn () => Storage::url($this->file_url)
         );
     }
 

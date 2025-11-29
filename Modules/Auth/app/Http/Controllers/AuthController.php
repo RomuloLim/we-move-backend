@@ -8,6 +8,7 @@ use Illuminate\Http\{JsonResponse, Request};
 use Modules\Auth\Classes\Services\AuthService;
 use Modules\Auth\Http\Requests\LoginRequest;
 use Modules\Auth\Resources\UserResource;
+use Modules\User\Enums\UserType;
 
 class AuthController extends Controller
 {
@@ -105,6 +106,16 @@ class AuthController extends Controller
                 return response()->json([
                     'message' => 'Usuário não autenticado.',
                 ], 401);
+            }
+
+            $relationToLoad = match ($user->user_type) {
+                UserType::Student => 'studentProfile',
+                UserType::Driver => 'driverProfile',
+                default => null,
+            };
+
+            if ($relationToLoad) {
+                $user->load($relationToLoad);
             }
 
             return response()->json([

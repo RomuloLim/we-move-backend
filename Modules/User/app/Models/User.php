@@ -6,9 +6,11 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Operation\Models\Student;
 use Modules\User\Enums\{Permission, UserType};
 
 class User extends Authenticatable
@@ -175,5 +177,10 @@ class User extends Authenticatable
     public function trips(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(\Modules\Logistics\Models\Trip::class, 'driver_id');
+    }
+
+    public function studentProfile(): HasOne
+    {
+        return $this->hasOne(Student::class, 'user_id');
     }
 }

@@ -4,7 +4,7 @@ namespace Modules\Operation\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\{DB};
+use Illuminate\Support\Facades\{DB, Storage};
 use Illuminate\Support\Str;
 use Modules\Operation\DTOs\{DocumentDto, RequisitionListParamsDto, StudentRequisitionDto};
 use Modules\Operation\Enums\{DocumentType, RequisitionStatus};
@@ -101,7 +101,8 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
         foreach ($documentTypes as $fieldName => $documentType) {
             if (isset($files[$fieldName])) {
                 $file = $files[$fieldName];
-                $path = $file->store('documents/' . $studentId, 'public');
+
+                $path = $file->store('documents/' . $studentId);
 
                 $document = $this->documentRepository->create(
                     new DocumentDto(

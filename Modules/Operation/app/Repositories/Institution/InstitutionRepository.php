@@ -32,7 +32,7 @@ class InstitutionRepository implements InstitutionRepositoryInterface
 
     public function find(int $id): ?Institution
     {
-        return Institution::query()->find($id);
+        return Institution::with('courses')->find($id);
     }
 
     public function findOrFail(int $id): ?Institution

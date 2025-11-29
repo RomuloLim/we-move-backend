@@ -19,7 +19,8 @@ class CourseResource extends JsonResource
             'name' => $this->name,
             'course_type' => $this->course_type,
             'description' => $this->description,
-            'is_linked' => $this->is_linked,
+            'is_linked' => $this->whenNotNull($this->is_linked),
+            'institution_course_id' => $this->whenNotNull($this->pivot?->id),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

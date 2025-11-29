@@ -17,6 +17,8 @@ class UserResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'user_type' => $this->user_type,
+            'student_profile' => $this->whenLoaded('studentProfile'),
+            'driver_profile' => $this->whenLoaded('driverProfile'),
             'email_verified_at' => $this->email_verified_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

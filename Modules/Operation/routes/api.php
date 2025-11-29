@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Operation\Http\Controllers\{CourseController, InstitutionController, InstitutionCourseController, StudentRequisitionController};
+use Modules\Operation\Http\Controllers\{CourseController, InstitutionController, InstitutionCourseController, StudentController, StudentRequisitionController};
 use Modules\User\Enums\Permission;
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
@@ -87,4 +87,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         Route::patch('requisitions/{id}/reprove', [StudentRequisitionController::class, 'reprove'])
             ->name('operation.requisitions.reprove');
     });
+
+    // Student routes
+    Route::get('students/{id}', [StudentController::class, 'show'])
+        ->name('operation.students.show');
 });

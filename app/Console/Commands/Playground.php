@@ -2,8 +2,9 @@
 
 namespace App\Console\Commands;
 
+use Dom\Document;
 use Illuminate\Console\Command;
-use Modules\Operation\Models\{Student, StudentRequisition};
+use Modules\Operation\Models\{Document as ModelsDocument, StudentRequisition};
 
 class Playground extends Command
 {
@@ -26,9 +27,6 @@ class Playground extends Command
      */
     public function handle()
     {
-        StudentRequisition::factory()->count(10)->create();
-
-        $a = StudentRequisition::first();
-        dd($a->toArray());
+        dd(ModelsDocument::latest()->first()->toArray());
     }
 }
