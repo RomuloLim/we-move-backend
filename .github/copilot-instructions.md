@@ -17,11 +17,23 @@ This application is a Laravel application and its main Laravel ecosystems packag
 - phpunit/phpunit (PHPUNIT) - v11
 - tailwindcss (TAILWINDCSS) - v4
 
+## Development Environment
+- This project runs in a Docker container using **Laravel Sail**
+- All commands must be executed through Sail: `./vendor/bin/sail artisan ...`
+- Use `./vendor/bin/sail` prefix for artisan, composer, npm, and test commands
+- The application runs inside the `laravel.test` container
+
 
 ## Conventions
 - You must follow all existing code conventions used in this application. When creating or editing a file, check sibling files for the correct structure, approach, naming.
 - Use descriptive names for variables and methods. For example, `isRegisteredForDiscounts`, not `discount()`.
 - Check for existing components to reuse before writing a new one.
+
+## Code Comments
+- Avoid excessive comments in the code - write self-documenting code with clear variable and method names
+- Only add comments for complex logic that is not immediately obvious
+- When comments are necessary, write them in **English**
+- Example of acceptable comment: `// Calculate discount based on user tier and purchase history`
 
 ## Verification Scripts
 - Do not create verification scripts or tinker when tests cover that functionality and prove it works. Unit and feature tests are more important.
@@ -262,3 +274,258 @@ protected function isAccessible(User $user, ?string $path = null): bool
 | decoration-slice | box-decoration-slice |
 | decoration-clone | box-decoration-clone |
 </laravel-boost-guidelines>
+
+
+=== modular monolith architecture ===
+
+## Modular Monolith Patterns
+
+This application follows a **Modular Monolith** architecture using the `nwidart/laravel-modules` package. Each module is a self-contained bounded context with its own responsibilities.
+
+### Module Structure
+- Modules are located in the `Modules/` directory
+- Each module follows the standard Laravel directory structure within its scope
+- Core modules: `Auth`, `User`, `Operation`, `Logistics`, `Communication`, `Core`
+
+### Separation of Concerns
+
+#### 1. **Contracts (Interfaces)**
+- Always create interfaces for Services and Repositories
+- Place interfaces in: `Modules/{Module}/app/Services/{ServiceName}Interface.php`
+- Place repository interfaces in: `Modules/{Module}/app/Repositories/{Entity}/{RepositoryName}Interface.php`
+- Example:
+  ```php
+  namespace Modules\Logistics\Services;
+  
+  interface BoardingServiceInterface
+  {
+      public function boardStudent(BoardingDto $data): Boarding;
+  }
+  ```
+
+#### 2. **DTOs (Data Transfer Objects)**
+- Use DTOs to transfer data between layers
+- DTOs must implement `App\Contracts\DtoContract`
+- DTOs must be `readonly` classes
+- DTOs must implement `toArray()` and `collection()` methods
+- Place in: `Modules/{Module}/app/DTOs/{EntityName}Dto.php`
+- Example:
+  ```php
+  readonly class BoardingDto implements DtoContract
+  {
+      public function __construct(
+          public int $tripId,
+          public int $studentId,
+          public int $stopId,
+      ) {}
+      
+      public function toArray(): array { ... }
+      public static function collection(array $data): Collection { ... }
+  }
+  ```
+
+#### 3. **Repositories**
+- Repositories handle all data access logic
+- Always create an interface and implementation
+- Place interface in: `Modules/{Module}/app/Repositories/{Entity}/{EntityName}RepositoryInterface.php`
+- Place implementation in: `Modules/{Module}/app/Repositories/{Entity}/{EntityName}Repository.php`
+- Repositories should only contain data access methods, no business logic
+- Example:
+  ```php
+  class BoardingRepository implements BoardingRepositoryInterface
+  {
+      public function create(BoardingDto $data): Boarding
+      {
+          return Boarding::create($data->toArray());
+      }
+  }
+  ```
+
+#### 4. **Services**
+- Services contain all business logic and orchestrate repositories
+- Always create an interface and implementation
+- Place interface in: `Modules/{Module}/app/Services/{ServiceName}Interface.php`
+- Place implementation in: `Modules/{Module}/app/Services/{ServiceName}.php`
+- Services validate business rules and throw exceptions with clear messages in Portuguese
+- Example:
+  ```php
+  class BoardingService implements BoardingServiceInterface
+  {
+      public function __construct(
+          protected BoardingRepositoryInterface $repository
+      ) {}
+      
+      public function boardStudent(BoardingDto $data): Boarding
+      {
+          // Business logic validation
+          if ($trip->status !== TripStatus::InProgress) {
+              throw new \Exception('A viagem não está em progresso.');
+          }
+          
+          return $this->repository->create($data);
+      }
+  }
+  ```
+
+#### 5. **Form Requests**
+- Always use Form Request classes for validation, never inline validation in controllers
+- Include both `rules()` and `messages()` methods
+- Messages must be in Portuguese
+- For DTOs, add a `toDto()` method to convert validated data
+- Place in: `Modules/{Module}/app/Http/Requests/{ActionName}Request.php`
+- Example:
+  ```php
+  class BoardRequest extends FormRequest
+  {
+      public function rules(): array { ... }
+      public function messages(): array { ... }
+      public function toDto(): BoardingDto { ... }
+  }
+  ```
+
+#### 6. **Controllers**
+- Controllers should be thin - only handle HTTP concerns
+- Inject service interfaces via constructor using dependency injection
+- Use try-catch to handle service exceptions and return appropriate HTTP responses
+- Always use status codes from `Symfony\Component\HttpFoundation\Response`
+- Use Resource classes to format responses
+- Place in: `Modules/{Module}/app/Http/Controllers/{EntityName}Controller.php`
+- Example:
+  ```php
+  class BoardingController extends Controller
+  {
+      public function __construct(protected BoardingServiceInterface $service) {}
+      
+      public function board(BoardRequest $request): JsonResponse
+      {
+          try {
+              $boarding = $this->service->boardStudent($request->toDto());
+              return BoardingResource::make($boarding)
+                  ->response()
+                  ->setStatusCode(StatusCode::HTTP_CREATED);
+          } catch (\Exception $e) {
+              return response()->json([
+                  'message' => $e->getMessage(),
+              ], StatusCode::HTTP_BAD_REQUEST);
+          }
+      }
+  }
+  ```
+
+#### 7. **API Resources**
+- Always use Eloquent API Resources to format JSON responses
+- Use `whenLoaded()` for relationships to avoid N+1 queries
+- Format dates consistently using `format()` method
+- Place in: `Modules/{Module}/app/Http/Resources/{EntityName}Resource.php`
+
+#### 8. **Service Providers**
+- Create dedicated service providers for each major component (per entity or group)
+- Register interfaces to implementations in the `register()` method
+- Place in: `Modules/{Module}/app/Providers/{EntityName}ServiceProvider.php`
+- Register the provider in the module's main service provider
+- Example:
+  ```php
+  class BoardingServiceProvider extends ServiceProvider
+  {
+      public function register(): void
+      {
+          $this->app->bind(
+              BoardingRepositoryInterface::class,
+              BoardingRepository::class
+          );
+          $this->app->bind(
+              BoardingServiceInterface::class,
+              BoardingService::class
+          );
+      }
+  }
+  ```
+
+### Models & Relationships
+
+#### Model Conventions
+- Use constructor property promotion in models when appropriate
+- Always define explicit return types for relationships
+- Use `protected function casts(): array` method for type casting
+- Use `HasFactory` trait and implement `newFactory()` method
+- Place in: `Modules/{Module}/app/Models/{EntityName}.php`
+
+#### Factories
+- Create factories for all models to support testing
+- Factories should provide realistic default data
+- Use factory states for variations (e.g., `landed()`, `active()`)
+- Place in: `Modules/{Module}/database/factories/{EntityName}Factory.php`
+
+#### Migrations
+- Use Artisan to generate migrations with `--path` option for modules
+- Always use foreign key constraints with appropriate `onDelete` actions
+- Use `cascadeOnDelete()` for parent-child relationships
+- Use appropriate column types (e.g., `timestamp` with `useCurrent()`)
+- Place in: `Modules/{Module}/database/migrations/`
+
+### Routes
+- API routes should be versioned (e.g., `/api/v1/`)
+- Group routes by resource and apply middleware appropriately
+- Use named routes for all API endpoints
+- Follow RESTful conventions when applicable
+- Use permission middleware from `Modules\User\Enums\Permission` for authorization
+- Place in: `Modules/{Module}/routes/api.php`
+
+### Testing Strategy
+
+#### Feature Tests
+- Most tests should be feature tests that test the full request-response cycle
+- Use `RefreshDatabase` trait to reset database between tests
+- Use Laravel Sanctum's `Sanctum::actingAs()` for authentication
+- Create helper methods for common setup (e.g., `createDriver()`, `createActiveTrip()`)
+- Test all happy paths, failure paths, and edge cases
+- Use descriptive test method names with `test_` prefix
+- Place in: `Modules/{Module}/tests/Feature/{EntityName}Test.php`
+
+#### Test Coverage Expectations
+- Test successful operations (200/201 responses)
+- Test validation failures (400 responses)
+- Test authorization failures (403 responses)
+- Test not found scenarios (404 responses)
+- Test business rule validations
+- Test relationships and side effects
+
+### Exception Handling
+- Throw exceptions with clear Portuguese messages in services
+- Handle exceptions in controllers and return appropriate HTTP responses
+- Use specific exception types when appropriate
+- Always include descriptive error messages for the end user
+
+### Cross-Module Communication
+- Modules can reference models from other modules when necessary
+- Use fully qualified class names for cross-module references
+- Example: `\Modules\Operation\Models\Student` in Logistics module
+- Keep cross-module dependencies minimal and explicit
+
+### Development Workflow
+
+#### When Creating New Features:
+1. Create migration with `artisan make:migration --path=Modules/{Module}/database/migrations`
+2. Create Model with factory
+3. Define relationships in models
+4. Create DTO implementing `DtoContract`
+5. Create Repository interface and implementation
+6. Create Service interface and implementation with business logic
+7. Create Form Request(s) with validation rules and messages
+8. Create Controller with thin methods
+9. Create API Resource for response formatting
+10. Create Service Provider and register bindings
+11. Add routes in module's `routes/api.php`
+12. Create comprehensive feature tests
+13. Run migrations: `artisan migrate`
+14. Run tests: `artisan test --filter={TestName}`
+15. Format code: `vendor/bin/pint`
+
+### Code Quality Standards
+- Run `vendor/bin/pint` before committing changes
+- Ensure all tests pass before finalizing features
+- Write clear, descriptive commit messages
+- Follow SOLID principles in service and repository design
+- Keep methods focused on a single responsibility
+- Use dependency injection extensively
+- Error messages must be in Portuguese and user-friendly
