@@ -110,7 +110,7 @@ class AuthController extends Controller
 
             $relationToLoad = match ($user->user_type) {
                 UserType::Student => 'studentProfile',
-                UserType::Driver => 'driverProfile',
+                // UserType::Driver => 'driverProfile',
                 default => null,
             };
 

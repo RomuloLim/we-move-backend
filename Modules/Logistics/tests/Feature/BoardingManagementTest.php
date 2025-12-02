@@ -326,4 +326,181 @@ class BoardingManagementTest extends TestCase
                 'message' => 'Estudante não está embarcado nesta viagem.',
             ]);
     }
+
+    public function test_can_list_all_passengers_of_a_trip(): void
+    {
+        $driver = $this->createDriver();
+        $trip = $this->createActiveTrip($driver);
+        $stop = Stop::factory()->create(['route_id' => $trip->route_id]);
+
+        // create 3 students, 2 boarded and 1 landed
+        $student1 = $this->createStudent();
+        $student2 = $this->createStudent();
+        $student3 = $this->createStudent();
+
+        Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $student1->id,
+            'stop_id' => $stop->id,
+            'landed_at' => null, // Still boarded
+        ]);
+
+        Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $student2->id,
+            'stop_id' => $stop->id,
+            'landed_at' => null, // Still boarded
+        ]);
+
+        Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $student3->id,
+            'stop_id' => $stop->id,
+            'landed_at' => now(), // Landed
+        ]);
+
+        Sanctum::actingAs($driver);
+
+        $response = $this->getJson("/api/v1/trips/{$trip->id}/passengers");
+
+        $response->assertOk()
+            ->assertJsonCount(3, 'data')
+            ->assertJsonStructure([
+                'data' => [
+                    '*' => [
+                        'id',
+                        'boarding_timestamp',
+                        'landed_at',
+                        'is_boarded',
+                        'student',
+                        'stop',
+                    ],
+                ],
+            ]);
+    }
+
+    public function test_can_filter_only_boarded_passengers(): void
+    {
+        $driver = $this->createDriver();
+        $trip = $this->createActiveTrip($driver);
+        $stop = Stop::factory()->create(['route_id' => $trip->route_id]);
+
+        // Create 2 boarded students and 1 landed
+        $student1 = $this->createStudent();
+        $student2 = $this->createStudent();
+        $student3 = $this->createStudent();
+
+        Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $student1->id,
+            'stop_id' => $stop->id,
+            'landed_at' => null,
+        ]);
+
+        Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $student2->id,
+            'stop_id' => $stop->id,
+            'landed_at' => null,
+        ]);
+
+        Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $student3->id,
+            'stop_id' => $stop->id,
+            'landed_at' => now(),
+        ]);
+
+        Sanctum::actingAs($driver);
+
+        $response = $this->getJson("/api/v1/trips/{$trip->id}/passengers?only_boarded=true");
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data');
+
+        $passengers = $response->json('data');
+
+        foreach ($passengers as $passenger) {
+            $this->assertTrue($passenger['is_boarded']);
+            $this->assertNull($passenger['landed_at']);
+        }
+    }
+
+    public function test_can_filter_only_landed_passengers(): void
+    {
+        $driver = $this->createDriver();
+        $trip = $this->createActiveTrip($driver);
+        $stop = Stop::factory()->create(['route_id' => $trip->route_id]);
+
+        // Cria 2 estudantes embarcados e 2 desembarcados
+        $student1 = $this->createStudent();
+        $student2 = $this->createStudent();
+        $student3 = $this->createStudent();
+        $student4 = $this->createStudent();
+
+        Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $student1->id,
+            'stop_id' => $stop->id,
+            'landed_at' => null,
+        ]);
+
+        Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $student2->id,
+            'stop_id' => $stop->id,
+            'landed_at' => null,
+        ]);
+
+        Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $student3->id,
+            'stop_id' => $stop->id,
+            'landed_at' => now(),
+        ]);
+
+        Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $student4->id,
+            'stop_id' => $stop->id,
+            'landed_at' => now(),
+        ]);
+
+        Sanctum::actingAs($driver);
+
+        $response = $this->getJson("/api/v1/trips/{$trip->id}/passengers?only_boarded=false");
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data');
+
+        $passengers = $response->json('data');
+
+        foreach ($passengers as $passenger) {
+            $this->assertFalse($passenger['is_boarded']);
+            $this->assertNotNull($passenger['landed_at']);
+        }
+    }
+
+    public function test_passengers_list_fails_for_non_existent_trip(): void
+    {
+        $driver = $this->createDriver();
+        Sanctum::actingAs($driver);
+
+        $response = $this->getJson('/api/v1/trips/99999/passengers');
+
+        $response->assertStatus(400)
+            ->assertJson([
+                'message' => 'Viagem não encontrada.',
+            ]);
+    }
+
+    public function test_passengers_list_requires_authentication(): void
+    {
+        $driver = $this->createDriver();
+        $trip = $this->createActiveTrip($driver);
+
+        $response = $this->getJson("/api/v1/trips/{$trip->id}/passengers");
+
+        $response->assertUnauthorized();
+    }
 }

@@ -218,9 +218,14 @@ class StudentRequisitionTest extends TestCase
 
         $institution->courses()->attach($course->id);
 
-        StudentRequisition::factory()->count(3)->create([
-            'institution_course_id' => $institution->courses()->first()->pivot->id,
-        ]);
+        // Criar 3 estudantes com usuários
+        for ($i = 0; $i < 3; $i++) {
+            $student = $this->createStudent();
+            StudentRequisition::factory()->create([
+                'student_id' => $student->id,
+                'institution_course_id' => $institution->courses()->first()->pivot->id,
+            ]);
+        }
 
         $response = $this->getJson('/api/v1/requisitions');
 
@@ -262,12 +267,17 @@ class StudentRequisitionTest extends TestCase
 
         $institution->courses()->attach($course->id);
 
+        $student1 = $this->createStudent();
+        $student2 = $this->createStudent();
+
         StudentRequisition::factory()->create([
+            'student_id' => $student1->id,
             'protocol' => 'TEST-001',
             'institution_course_id' => $institution->courses()->first()->pivot->id,
         ]);
 
         StudentRequisition::factory()->create([
+            'student_id' => $student2->id,
             'protocol' => 'TEST-002',
             'institution_course_id' => $institution->courses()->first()->pivot->id,
         ]);
@@ -290,12 +300,17 @@ class StudentRequisitionTest extends TestCase
 
         $institution->courses()->attach($course->id);
 
+        $student1 = $this->createStudent();
+        $student2 = $this->createStudent();
+
         StudentRequisition::factory()->create([
+            'student_id' => $student1->id,
             'status' => RequisitionStatus::Pending,
             'institution_course_id' => $institution->courses()->first()->pivot->id,
         ]);
 
         StudentRequisition::factory()->create([
+            'student_id' => $student2->id,
             'status' => RequisitionStatus::Approved,
             'institution_course_id' => $institution->courses()->first()->pivot->id,
         ]);
@@ -318,12 +333,17 @@ class StudentRequisitionTest extends TestCase
 
         $institution->courses()->attach($course->id);
 
+        $student1 = $this->createStudent();
+        $student2 = $this->createStudent();
+
         StudentRequisition::factory()->create([
+            'student_id' => $student1->id,
             'atuation_form' => AtuationForm::Student,
             'institution_course_id' => $institution->courses()->first()->pivot->id,
         ]);
 
         StudentRequisition::factory()->create([
+            'student_id' => $student2->id,
             'atuation_form' => AtuationForm::Teacher,
             'institution_course_id' => $institution->courses()->first()->pivot->id,
         ]);
@@ -346,13 +366,18 @@ class StudentRequisitionTest extends TestCase
 
         $institution->courses()->attach($course->id);
 
+        $student1 = $this->createStudent();
+        $student2 = $this->createStudent();
+
         StudentRequisition::factory()->create([
+            'student_id' => $student1->id,
             'status' => RequisitionStatus::Pending,
             'institution_course_id' => $institution->courses()->first()->pivot->id,
             'atuation_form' => AtuationForm::Student,
         ]);
 
         StudentRequisition::factory()->create([
+            'student_id' => $student2->id,
             'status' => RequisitionStatus::Approved,
             'institution_course_id' => $institution->courses()->first()->pivot->id,
             'atuation_form' => AtuationForm::Student,
@@ -377,9 +402,14 @@ class StudentRequisitionTest extends TestCase
 
         $institution->courses()->attach($course->id);
 
-        StudentRequisition::factory()->count(20)->create([
-            'institution_course_id' => $institution->courses()->first()->pivot->id,
-        ]);
+        // Criar 20 estudantes com usuários
+        for ($i = 0; $i < 20; $i++) {
+            $student = $this->createStudent();
+            StudentRequisition::factory()->create([
+                'student_id' => $student->id,
+                'institution_course_id' => $institution->courses()->first()->pivot->id,
+            ]);
+        }
 
         $response = $this->getJson('/api/v1/requisitions');
 
@@ -441,7 +471,10 @@ class StudentRequisitionTest extends TestCase
 
         $institution->courses()->attach($course->id);
 
+        $student = $this->createStudent();
+
         StudentRequisition::factory()->create([
+            'student_id' => $student->id,
             'institution_course_id' => $institution->courses()->first()->pivot->id,
         ]);
 
@@ -465,7 +498,10 @@ class StudentRequisitionTest extends TestCase
 
         $institution->courses()->attach($course->id);
 
+        $student = $this->createStudent();
+
         StudentRequisition::factory()->create([
+            'student_id' => $student->id,
             'institution_course_id' => $institution->courses()->first()->pivot->id,
         ]);
 

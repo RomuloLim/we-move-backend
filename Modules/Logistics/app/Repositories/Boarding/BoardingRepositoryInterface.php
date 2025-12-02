@@ -2,6 +2,7 @@
 
 namespace Modules\Logistics\Repositories\Boarding;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\Logistics\DTOs\BoardingDto;
 use Modules\Logistics\Models\Boarding;
 
@@ -14,4 +15,6 @@ interface BoardingRepositoryInterface
     public function unboard(Boarding $boarding): Boarding;
 
     public function unboardAllByTripId(int $tripId): int;
+
+    public function getPassengersByTripId(int $tripId, ?bool $onlyBoarded = null): Collection;
 }

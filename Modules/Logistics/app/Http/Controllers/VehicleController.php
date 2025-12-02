@@ -4,6 +4,7 @@ namespace Modules\Logistics\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\{JsonResponse};
+use Modules\Logistics\Enums\VehicleAvailabilityFilter;
 use Modules\Logistics\Http\Requests\{VehicleFormRequest, VehicleIndexRequest};
 use Modules\Logistics\Http\Resources\VehicleResource;
 use Modules\Logistics\Services\VehicleServiceInterface;
@@ -15,7 +16,15 @@ class VehicleController extends Controller
 
     public function index(VehicleIndexRequest $request): JsonResponse
     {
-        $vehicles = $this->service->paginate($request->get('search'), $request->get('per_page', 15));
+        $availability = $request->has('availability')
+            ? VehicleAvailabilityFilter::from($request->get('availability'))
+            : null;
+
+        $vehicles = $this->service->paginate(
+            $request->get('search'),
+            $request->get('per_page', 15),
+            $availability
+        );
 
         return VehicleResource::collection($vehicles)->response();
     }

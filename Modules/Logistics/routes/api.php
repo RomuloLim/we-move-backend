@@ -109,5 +109,8 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
         Route::post('boardings/unboard', [BoardingController::class, 'unboard'])
             ->name('logistics.boardings.unboard');
+
+        Route::get('trips/{trip}/passengers', [BoardingController::class, 'listPassengers'])
+            ->name('logistics.trips.passengers.list');
     });
 });

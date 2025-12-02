@@ -106,4 +106,15 @@ class BoardingService implements BoardingServiceInterface
     {
         return $this->repository->unboardAllByTripId($tripId);
     }
+
+    public function getPassengers(int $tripId, ?bool $onlyBoarded = null): \Illuminate\Database\Eloquent\Collection
+    {
+        $trip = Trip::find($tripId);
+
+        if (!$trip) {
+            throw new \Exception('Viagem não encontrada.');
+        }
+
+        return $this->repository->getPassengersByTripId($tripId, $onlyBoarded);
+    }
 }

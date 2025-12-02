@@ -39,4 +39,19 @@ class BoardingRepository implements BoardingRepositoryInterface
                 'landed_at' => now(),
             ]);
     }
+
+    public function getPassengersByTripId(int $tripId, ?bool $onlyBoarded = null): \Illuminate\Database\Eloquent\Collection
+    {
+        $query = Boarding::query()
+            ->where('trip_id', $tripId)
+            ->with(['student', 'stop']);
+
+        if ($onlyBoarded === true) {
+            $query->whereNull('landed_at');
+        } elseif ($onlyBoarded === false) {
+            $query->whereNotNull('landed_at');
+        }
+
+        return $query->orderBy('boarding_timestamp', 'desc')->get();
+    }
 }

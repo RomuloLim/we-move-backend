@@ -2,9 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Dom\Document;
 use Illuminate\Console\Command;
-use Modules\Operation\Models\{Document as ModelsDocument, StudentRequisition};
+use Modules\Operation\Models\{Document as ModelsDocument};
 
 class Playground extends Command
 {

@@ -20,6 +20,7 @@ class BoardingResource extends JsonResource
             'student_id' => $this->student_id,
             'boarding_timestamp' => $this->boarding_timestamp?->format('Y-m-d H:i:s'),
             'landed_at' => $this->landed_at?->format('Y-m-d H:i:s'),
+            'is_boarded' => $this->landed_at === null,
             'stop_id' => $this->stop_id,
             'trip' => new TripResource($this->whenLoaded('trip')),
             'student' => $this->whenLoaded('student'),

@@ -4,7 +4,7 @@ namespace Modules\Logistics\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
-use Modules\Logistics\Http\Requests\{BoardRequest, UnboardRequest};
+use Modules\Logistics\Http\Requests\{BoardRequest, ListPassengersRequest, UnboardRequest};
 use Modules\Logistics\Http\Resources\BoardingResource;
 use Modules\Logistics\Services\BoardingServiceInterface;
 use Symfony\Component\HttpFoundation\Response as StatusCode;
@@ -49,6 +49,26 @@ class BoardingController extends Controller
             );
 
             return BoardingResource::make($boarding)->response();
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], StatusCode::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Lista todos os passageiros de uma viagem.
+     * Permite filtrar por passageiros atualmente embarcados.
+     */
+    public function listPassengers(int $tripId, ListPassengersRequest $request): JsonResponse
+    {
+        try {
+            $validated = $request->validated();
+            $onlyBoarded = $validated['only_boarded'] ?? null;
+
+            $passengers = $this->service->getPassengers($tripId, $onlyBoarded);
+
+            return BoardingResource::collection($passengers)->response();
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),

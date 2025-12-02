@@ -4,11 +4,12 @@ namespace Modules\Logistics\Repositories\Vehicle;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Modules\Logistics\DTOs\VehicleDto;
+use Modules\Logistics\Enums\VehicleAvailabilityFilter;
 use Modules\Logistics\Models\Vehicle;
 
 interface VehicleRepositoryInterface
 {
-    public function paginate(?string $search = null, int $perPage = 15): LengthAwarePaginator;
+    public function paginate(?string $search = null, int $perPage = 15, ?VehicleAvailabilityFilter $availability = null): LengthAwarePaginator;
 
     /**
      * @return Vehicle[]
