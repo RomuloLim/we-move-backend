@@ -33,27 +33,30 @@ class BoardingService implements BoardingServiceInterface
             throw new \Exception('Apenas o motorista responsável pela viagem pode autorizar embarques.');
         }
 
-        // Busca o estudante
-        $student = Student::find($data->studentId);
-
-        if (!$student) {
-            throw new \Exception('Estudante não encontrado.');
+        // Busca o estudante pelo qrcode_token
+        try {
+            $student = Student::where('qrcode_token', $data->qrcodeToken)->first();
+        } catch (\Exception $e) {
+            throw new \Exception('Token de QR Code inválido.');
         }
 
-        // Valida o token do QR Code
-        if ($student->qrcode_token !== $data->qrcodeToken) {
+        if (!$student) {
             throw new \Exception('Token de QR Code inválido.');
         }
 
         // Verifica se o estudante já está embarcado (não desembarcou da última viagem)
-        $activeBoarding = $this->repository->findActiveBoarding($data->studentId);
+        $activeBoarding = $this->repository->findActiveBoarding($student->id);
 
         if ($activeBoarding) {
             throw new \Exception('O estudante ainda não desembarcou da viagem anterior.');
         }
 
-        // Cria o embarque
-        $boarding = $this->repository->create($data);
+        // Cria o embarque diretamente com o student_id
+        $boarding = Boarding::create([
+            'trip_id' => $data->tripId,
+            'student_id' => $student->id,
+            'stop_id' => $data->stopId,
+        ]);
 
         // Gera um novo token de QR Code para o estudante
         $student->update([

@@ -9,7 +9,6 @@ readonly class BoardingDto implements DtoContract
 {
     public function __construct(
         public int $tripId,
-        public int $studentId,
         public int $stopId,
         public string $qrcodeToken,
         public int $driverId,
@@ -20,7 +19,6 @@ readonly class BoardingDto implements DtoContract
         $dtos = array_map(function ($boarding) {
             return new BoardingDto(
                 tripId: $boarding['trip_id'],
-                studentId: $boarding['student_id'],
                 stopId: $boarding['stop_id'],
                 qrcodeToken: $boarding['qrcode_token'],
                 driverId: $boarding['driver_id'],
@@ -34,7 +32,6 @@ readonly class BoardingDto implements DtoContract
     {
         return [
             'trip_id' => $this->tripId,
-            'student_id' => $this->studentId,
             'stop_id' => $this->stopId,
         ];
     }

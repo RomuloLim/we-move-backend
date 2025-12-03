@@ -56,7 +56,6 @@ class BoardingManagementTest extends TestCase
 
         $response = $this->postJson('/api/v1/boardings/board', [
             'trip_id' => $trip->id,
-            'student_id' => $student->id,
             'stop_id' => $stop->id,
             'qrcode_token' => $student->qrcode_token,
         ]);
@@ -95,7 +94,6 @@ class BoardingManagementTest extends TestCase
 
         $response = $this->postJson('/api/v1/boardings/board', [
             'trip_id' => $trip->id,
-            'student_id' => $student->id,
             'stop_id' => $stop->id,
             'qrcode_token' => 'invalid-token',
         ]);
@@ -125,7 +123,6 @@ class BoardingManagementTest extends TestCase
 
         $response = $this->postJson('/api/v1/boardings/board', [
             'trip_id' => $trip->id,
-            'student_id' => $student->id,
             'stop_id' => $stop->id,
             'qrcode_token' => $student->qrcode_token,
         ]);
@@ -148,7 +145,6 @@ class BoardingManagementTest extends TestCase
 
         $response = $this->postJson('/api/v1/boardings/board', [
             'trip_id' => $trip->id,
-            'student_id' => $student->id,
             'stop_id' => $stop->id,
             'qrcode_token' => $student->qrcode_token,
         ]);
@@ -297,7 +293,6 @@ class BoardingManagementTest extends TestCase
 
         $response = $this->postJson('/api/v1/boardings/board', [
             'trip_id' => $trip->id,
-            'student_id' => $student->id,
             'stop_id' => $stop->id,
             'qrcode_token' => $student->qrcode_token,
         ]);

@@ -235,31 +235,65 @@ class TripManagementTest extends TestCase
         $vehicle = Vehicle::factory()->create();
         $tripDate = now()->format('Y-m-d');
 
-        // Create first trip
+        // Create first trip (in progress)
         $this->postJson('/api/v1/trips/start', [
             'route_id' => $route->id,
             'vehicle_id' => $vehicle->id,
             'trip_date' => $tripDate,
         ])->assertCreated();
 
-        // Complete it
-        $trip = Trip::where('driver_id', $driver->id)->first();
-        $trip->update(['status' => TripStatus::Completed]);
-
-        // Try to create another trip for same route and date with different driver
+        // Try to create another trip for same route and date with different driver while first is still in progress
         $anotherDriver = User::factory()->create(['user_type' => UserType::Driver->value]);
+        $anotherVehicle = Vehicle::factory()->create();
         Sanctum::actingAs($anotherDriver);
 
         $response = $this->postJson('/api/v1/trips/start', [
             'route_id' => $route->id,
-            'vehicle_id' => $vehicle->id,
+            'vehicle_id' => $anotherVehicle->id,
             'trip_date' => $tripDate,
         ]);
 
         $response->assertStatus(400)
             ->assertJson([
-                'message' => 'Já existe uma viagem para esta rota na data selecionada.',
+                'message' => 'Já existe uma viagem em progresso para esta rota na data selecionada.',
             ]);
+    }
+
+    public function test_can_start_trip_after_previous_trip_completed(): void
+    {
+        $driver = $this->actingAsDriver();
+        $route = Route::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+        $tripDate = now()->format('Y-m-d');
+
+        // Create and complete first trip
+        $firstTripResponse = $this->postJson('/api/v1/trips/start', [
+            'route_id' => $route->id,
+            'vehicle_id' => $vehicle->id,
+            'trip_date' => $tripDate,
+        ])->assertCreated();
+
+        $firstTripId = $firstTripResponse->json('data.id');
+        $this->patchJson("/api/v1/trips/{$firstTripId}/complete")->assertOk();
+
+        // Now another driver should be able to start a new trip for the same route and date
+        $anotherDriver = User::factory()->create(['user_type' => UserType::Driver->value]);
+        $anotherVehicle = Vehicle::factory()->create();
+        Sanctum::actingAs($anotherDriver);
+
+        $response = $this->postJson('/api/v1/trips/start', [
+            'route_id' => $route->id,
+            'vehicle_id' => $anotherVehicle->id,
+            'trip_date' => $tripDate,
+        ]);
+
+        $response->assertCreated();
+        $this->assertDatabaseHas('trips', [
+            'route_id' => $route->id,
+            'driver_id' => $anotherDriver->id,
+            'trip_date' => $tripDate,
+            'status' => TripStatus::InProgress->value,
+        ]);
     }
 
     public function test_admin_can_view_all_active_trips(): void

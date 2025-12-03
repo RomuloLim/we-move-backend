@@ -26,21 +26,33 @@ class TripService implements TripServiceInterface
             throw new \Exception('Este veículo já está sendo utilizado em outra viagem em andamento.');
         }
 
-        // Check for existing trip on the same route and date
+        // Check for existing IN PROGRESS trip on the same route and date
         $existingTrip = Trip::where('route_id', $data->routeId)
             ->where('trip_date', $data->tripDate)
+            ->where('status', TripStatus::InProgress)
             ->first();
 
         if ($existingTrip) {
-            // If the existing trip is assigned to the same driver and is scheduled, update it to InProgress
-            if ($existingTrip->driver_id === $data->driverId && $existingTrip->status === TripStatus::Scheduled) {
-                return $this->repository->update($existingTrip->id, [
-                    'status' => TripStatus::InProgress,
-                    'vehicle_id' => $data->vehicleId,
-                ]);
+            // If the existing trip is assigned to the same driver, return it
+            if ($existingTrip->driver_id === $data->driverId) {
+                return $existingTrip;
             }
 
-            throw new \Exception('Já existe uma viagem para esta rota na data selecionada.');
+            throw new \Exception('Já existe uma viagem em progresso para esta rota na data selecionada.');
+        }
+
+        // Check for scheduled trip that can be started
+        $scheduledTrip = Trip::where('route_id', $data->routeId)
+            ->where('trip_date', $data->tripDate)
+            ->where('status', TripStatus::Scheduled)
+            ->where('driver_id', $data->driverId)
+            ->first();
+
+        if ($scheduledTrip) {
+            return $this->repository->update($scheduledTrip->id, [
+                'status' => TripStatus::InProgress,
+                'vehicle_id' => $data->vehicleId,
+            ]);
         }
 
         // Create new trip with status InProgress

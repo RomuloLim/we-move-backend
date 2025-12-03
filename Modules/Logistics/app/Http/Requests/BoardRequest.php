@@ -15,11 +15,6 @@ class BoardRequest extends FormRequest
                 'integer',
                 'exists:trips,id',
             ],
-            'student_id' => [
-                'required',
-                'integer',
-                'exists:students,id',
-            ],
             'stop_id' => [
                 'required',
                 'integer',
@@ -37,8 +32,6 @@ class BoardRequest extends FormRequest
         return [
             'trip_id.required' => 'A viagem é obrigatória.',
             'trip_id.exists' => 'A viagem selecionada não existe.',
-            'student_id.required' => 'O estudante é obrigatório.',
-            'student_id.exists' => 'O estudante selecionado não existe.',
             'stop_id.required' => 'O ponto de parada é obrigatório.',
             'stop_id.exists' => 'O ponto de parada selecionado não existe.',
             'qrcode_token.required' => 'O token do QR Code é obrigatório.',
@@ -52,10 +45,9 @@ class BoardRequest extends FormRequest
 
         return new BoardingDto(
             tripId: $validated['trip_id'],
-            studentId: $validated['student_id'],
             stopId: $validated['stop_id'],
             qrcodeToken: $validated['qrcode_token'],
-            driverId: auth()->id(),
+            driverId: $this->user()->id,
         );
     }
 }
