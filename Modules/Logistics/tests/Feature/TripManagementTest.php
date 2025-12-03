@@ -106,7 +106,18 @@ class TripManagementTest extends TestCase
         $response = $this->patchJson("/api/v1/trips/{$trip->id}/complete");
 
         $response->assertOk()
-            ->assertJsonPath('data.status', TripStatus::Completed->value);
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    'trip',
+                    'summary' => [
+                        'route_name',
+                        'total_boardings',
+                        'duration',
+                    ],
+                ],
+            ])
+            ->assertJsonPath('data.trip.status', TripStatus::Completed->value);
 
         $this->assertDatabaseHas('trips', [
             'id' => $trip->id,
@@ -355,5 +366,180 @@ class TripManagementTest extends TestCase
             'route_id' => $route2->id,
             'status' => TripStatus::InProgress->value,
         ]);
+    }
+
+    public function test_driver_can_get_their_active_trip(): void
+    {
+        $driver = $this->actingAsDriver();
+        $route = Route::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        // Start a trip
+        $this->postJson('/api/v1/trips/start', [
+            'route_id' => $route->id,
+            'vehicle_id' => $vehicle->id,
+            'trip_date' => now()->format('Y-m-d'),
+        ])->assertCreated();
+
+        // Get active trip
+        $response = $this->getJson('/api/v1/trips/my-active-trip');
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'route_id',
+                    'driver_id',
+                    'vehicle_id',
+                    'trip_date',
+                    'status',
+                    'status_label',
+                ],
+            ])
+            ->assertJson([
+                'data' => [
+                    'driver_id' => $driver->id,
+                    'route_id' => $route->id,
+                    'vehicle_id' => $vehicle->id,
+                    'status' => TripStatus::InProgress->value,
+                ],
+            ]);
+    }
+
+    public function test_driver_gets_404_when_no_active_trip_exists(): void
+    {
+        $this->actingAsDriver();
+
+        $response = $this->getJson('/api/v1/trips/my-active-trip');
+
+        $response->assertNotFound()
+            ->assertJson([
+                'message' => 'Nenhuma viagem ativa encontrada.',
+            ]);
+    }
+
+    public function test_driver_only_sees_their_own_active_trip(): void
+    {
+        // Driver 1 starts a trip
+        $driver1 = User::factory()->create(['user_type' => UserType::Driver->value]);
+        $route1 = Route::factory()->create();
+        $vehicle1 = Vehicle::factory()->create();
+
+        Sanctum::actingAs($driver1);
+        $this->postJson('/api/v1/trips/start', [
+            'route_id' => $route1->id,
+            'vehicle_id' => $vehicle1->id,
+            'trip_date' => now()->format('Y-m-d'),
+        ])->assertCreated();
+
+        // Driver 2 starts another trip
+        $driver2 = User::factory()->create(['user_type' => UserType::Driver->value]);
+        $route2 = Route::factory()->create();
+        $vehicle2 = Vehicle::factory()->create();
+
+        Sanctum::actingAs($driver2);
+        $this->postJson('/api/v1/trips/start', [
+            'route_id' => $route2->id,
+            'vehicle_id' => $vehicle2->id,
+            'trip_date' => now()->format('Y-m-d'),
+        ])->assertCreated();
+
+        // Driver 2 should only see their own active trip
+        $response = $this->getJson('/api/v1/trips/my-active-trip');
+
+        $response->assertOk()
+            ->assertJson([
+                'data' => [
+                    'driver_id' => $driver2->id,
+                    'route_id' => $route2->id,
+                ],
+            ]);
+
+        // Verify driver 2 doesn't see driver 1's trip
+        $response->assertJsonMissing([
+            'driver_id' => $driver1->id,
+        ]);
+    }
+
+    public function test_completed_trip_is_not_returned_as_active(): void
+    {
+        $driver = $this->actingAsDriver();
+        $route = Route::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        // Start and complete a trip
+        $startResponse = $this->postJson('/api/v1/trips/start', [
+            'route_id' => $route->id,
+            'vehicle_id' => $vehicle->id,
+            'trip_date' => now()->format('Y-m-d'),
+        ])->assertCreated();
+
+        $tripId = $startResponse->json('data.id');
+        $this->patchJson("/api/v1/trips/{$tripId}/complete")->assertOk();
+
+        // Try to get active trip
+        $response = $this->getJson('/api/v1/trips/my-active-trip');
+
+        $response->assertNotFound()
+            ->assertJson([
+                'message' => 'Nenhuma viagem ativa encontrada.',
+            ]);
+    }
+
+    public function test_complete_trip_returns_summary_with_route_name_boardings_and_duration(): void
+    {
+        $driver = $this->actingAsDriver();
+        $route = Route::factory()->create(['route_name' => 'Rota Centro-Universidade']);
+        $vehicle = Vehicle::factory()->create();
+
+        // Start a trip
+        $startResponse = $this->postJson('/api/v1/trips/start', [
+            'route_id' => $route->id,
+            'vehicle_id' => $vehicle->id,
+            'trip_date' => now()->format('Y-m-d'),
+        ])->assertCreated();
+
+        $tripId = $startResponse->json('data.id');
+        $trip = Trip::find($tripId);
+
+        // Create some boardings
+        $student1 = \Modules\Operation\Models\Student::factory()->create();
+        $student2 = \Modules\Operation\Models\Student::factory()->create();
+        $stop = \Modules\Logistics\Models\Stop::factory()->create(['route_id' => $route->id]);
+
+        \Modules\Logistics\Models\Boarding::factory()->create([
+            'trip_id' => $tripId,
+            'student_id' => $student1->id,
+            'stop_id' => $stop->id,
+        ]);
+        \Modules\Logistics\Models\Boarding::factory()->create([
+            'trip_id' => $tripId,
+            'student_id' => $student2->id,
+            'stop_id' => $stop->id,
+        ]);
+
+        // Wait a bit to have some duration
+        sleep(1);
+
+        // Complete the trip
+        $response = $this->patchJson("/api/v1/trips/{$tripId}/complete");
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'message',
+                'data' => [
+                    'trip',
+                    'summary' => [
+                        'route_name',
+                        'total_boardings',
+                        'duration',
+                    ],
+                ],
+            ])
+            ->assertJsonPath('data.summary.route_name', 'Rota Centro-Universidade')
+            ->assertJsonPath('data.summary.total_boardings', 2);
+
+        $this->assertGreaterThanOrEqual('0s', $response->json('data.summary.duration'));
+        $this->assertNotEmpty($response->json('data.summary.duration'));
     }
 }

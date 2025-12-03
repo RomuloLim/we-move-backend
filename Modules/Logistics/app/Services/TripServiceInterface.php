@@ -15,4 +15,6 @@ interface TripServiceInterface
     public function getActiveTrips(?int $userId = null, int $perPage = 15): LengthAwarePaginator;
 
     public function find(int $id): ?Trip;
+
+    public function getActiveTripForDriver(int $driverId): ?Trip;
 }

@@ -93,6 +93,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
         ->middleware("permission:{$viewTripsPermission}")
         ->name('logistics.trips.active');
 
+    // Get the active trip for the authenticated driver
+    Route::get('trips/my-active-trip', [TripController::class, 'myActiveTrip'])
+        ->name('logistics.trips.my_active');
+
     $manageTripsPermission = Permission::ManageTrips->value;
     Route::middleware("permission:{$manageTripsPermission}")->group(function () {
         Route::post('trips/start', [TripController::class, 'start'])

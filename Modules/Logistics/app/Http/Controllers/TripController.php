@@ -3,6 +3,7 @@
 namespace Modules\Logistics\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Http\{JsonResponse, Request};
 use Modules\Logistics\Http\Requests\{StartTripRequest};
 use Modules\Logistics\Http\Resources\TripResource;
@@ -57,10 +58,9 @@ class TripController extends Controller
     public function complete(Request $request, int $id): JsonResponse
     {
         try {
-            // Desembarca todos os estudantes antes de finalizar a viagem
             $this->boardingService->unboardAllStudents($id);
 
-            $trip = $this->service->completeTrip($id, auth()->id());
+            $trip = $this->service->completeTrip($id, $request->user()->id);
 
             if (!$trip) {
                 return response()->json([
@@ -68,11 +68,45 @@ class TripController extends Controller
                 ], StatusCode::HTTP_NOT_FOUND);
             }
 
-            return TripResource::make($trip)->response();
+            $trip->load(['route', 'boardings']);
+
+            $tripDuration = $trip->created_at->diffForHumans($trip->updated_at, [
+                'parts' => 2,
+                'short' => true,
+                'syntax' => Carbon::DIFF_ABSOLUTE,
+            ]);
+
+            return response()->json([
+                'message' => 'Viagem finalizada com sucesso.',
+                'data' => [
+                    'trip' => TripResource::make($trip),
+                    'summary' => [
+                        'route_name' => $trip->route->route_name,
+                        'total_boardings' => $trip->boardings->count(),
+                        'duration' => $tripDuration,
+                    ],
+                ],
+            ], StatusCode::HTTP_OK);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
             ], StatusCode::HTTP_BAD_REQUEST);
         }
+    }
+
+    /**
+     * Get the active trip for the authenticated driver.
+     */
+    public function myActiveTrip(Request $request): JsonResponse
+    {
+        $trip = $this->service->getActiveTripForDriver($request->user()->id);
+
+        if (!$trip) {
+            return response()->json([
+                'message' => 'Nenhuma viagem ativa encontrada.',
+            ], StatusCode::HTTP_NOT_FOUND);
+        }
+
+        return TripResource::make($trip)->response();
     }
 }

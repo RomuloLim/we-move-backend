@@ -85,4 +85,9 @@ class TripService implements TripServiceInterface
     {
         return $this->repository->find($id);
     }
+
+    public function getActiveTripForDriver(int $driverId): ?Trip
+    {
+        return $this->repository->findByDriverAndStatus($driverId, TripStatus::InProgress);
+    }
 }
