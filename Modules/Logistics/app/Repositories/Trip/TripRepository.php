@@ -71,4 +71,15 @@ class TripRepository implements TripRepositoryInterface
             ->where('status', $status)
             ->first();
     }
+
+    public function findActiveTripForStudent(int $studentId): ?Trip
+    {
+        return Trip::with(['route', 'driver', 'vehicle', 'boardings'])
+            ->where('status', TripStatus::InProgress)
+            ->whereHas('boardings', function ($query) use ($studentId) {
+                $query->where('student_id', $studentId)
+                    ->whereNull('landed_at');
+            })
+            ->first();
+    }
 }

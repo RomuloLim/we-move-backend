@@ -97,6 +97,10 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::get('trips/my-active-trip', [TripController::class, 'myActiveTrip'])
         ->name('logistics.trips.my_active');
 
+    // Get the active trip for the authenticated student
+    Route::get('trips/my-active-trip-as-student', [TripController::class, 'myActiveTripAsStudent'])
+        ->name('logistics.trips.my_active_as_student');
+
     $manageTripsPermission = Permission::ManageTrips->value;
     Route::middleware("permission:{$manageTripsPermission}")->group(function () {
         Route::post('trips/start', [TripController::class, 'start'])

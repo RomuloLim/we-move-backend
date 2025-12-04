@@ -103,6 +103,7 @@ enum Permission: string
             self::ViewInstitutions,
             self::ViewCourses,
             self::SubmitRequisition,
+            self::ViewRoutes
         ];
     }
 

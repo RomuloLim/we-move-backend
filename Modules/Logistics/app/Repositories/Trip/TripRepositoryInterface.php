@@ -22,4 +22,6 @@ interface TripRepositoryInterface
     public function hasActiveVehicle(int $vehicleId): bool;
 
     public function findByDriverAndStatus(int $driverId, TripStatus $status): ?Trip;
+
+    public function findActiveTripForStudent(int $studentId): ?Trip;
 }

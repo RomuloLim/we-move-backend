@@ -109,4 +109,21 @@ class TripController extends Controller
 
         return TripResource::make($trip)->response();
     }
+
+    /**
+     * Get the active trip for the authenticated student.
+     * Returns the trip where the student is currently boarded (not landed yet).
+     */
+    public function myActiveTripAsStudent(Request $request): JsonResponse
+    {
+        $trip = $this->service->getActiveTripForStudent($request->user()->id);
+
+        if (!$trip) {
+            return response()->json([
+                'message' => 'Nenhuma viagem ativa encontrada.',
+            ], StatusCode::HTTP_NOT_FOUND);
+        }
+
+        return TripResource::make($trip)->response();
+    }
 }

@@ -576,4 +576,138 @@ class TripManagementTest extends TestCase
         $this->assertGreaterThanOrEqual('0s', $response->json('data.summary.duration'));
         $this->assertNotEmpty($response->json('data.summary.duration'));
     }
+
+    public function test_student_can_get_active_trip_when_boarded(): void
+    {
+        $student = $this->actingAsStudent();
+        $driver = User::factory()->create(['user_type' => UserType::Driver->value]);
+        $route = Route::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        // Create an active trip
+        $trip = Trip::factory()->create([
+            'route_id' => $route->id,
+            'driver_id' => $driver->id,
+            'vehicle_id' => $vehicle->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $stop = \Modules\Logistics\Models\Stop::factory()->create(['route_id' => $route->id]);
+        $studentModel = \Modules\Operation\Models\Student::factory()->create(['user_id' => $student->id]);
+
+        // Board the student (without landing)
+        \Modules\Logistics\Models\Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $studentModel->id,
+            'stop_id' => $stop->id,
+            'landed_at' => null,
+        ]);
+
+        $response = $this->getJson('/api/v1/trips/my-active-trip-as-student');
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'route',
+                    'driver',
+                    'vehicle',
+                    'status',
+                ],
+            ])
+            ->assertJsonPath('data.id', $trip->id)
+            ->assertJsonPath('data.status', TripStatus::InProgress->value);
+    }
+
+    public function test_student_cannot_get_active_trip_when_not_boarded(): void
+    {
+        $student = $this->actingAsStudent();
+        $driver = User::factory()->create(['user_type' => UserType::Driver->value]);
+        $route = Route::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        // Create an active trip
+        Trip::factory()->create([
+            'route_id' => $route->id,
+            'driver_id' => $driver->id,
+            'vehicle_id' => $vehicle->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        // Student is not boarded
+        $response = $this->getJson('/api/v1/trips/my-active-trip-as-student');
+
+        $response->assertNotFound()
+            ->assertJson([
+                'message' => 'Nenhuma viagem ativa encontrada.',
+            ]);
+    }
+
+    public function test_student_cannot_get_active_trip_when_already_landed(): void
+    {
+        $student = $this->actingAsStudent();
+        $driver = User::factory()->create(['user_type' => UserType::Driver->value]);
+        $route = Route::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        // Create an active trip
+        $trip = Trip::factory()->create([
+            'route_id' => $route->id,
+            'driver_id' => $driver->id,
+            'vehicle_id' => $vehicle->id,
+            'status' => TripStatus::InProgress,
+        ]);
+
+        $stop = \Modules\Logistics\Models\Stop::factory()->create(['route_id' => $route->id]);
+        $studentModel = \Modules\Operation\Models\Student::factory()->create(['user_id' => $student->id]);
+
+        // Board and land the student
+        \Modules\Logistics\Models\Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $studentModel->id,
+            'stop_id' => $stop->id,
+            'landed_at' => now(),
+        ]);
+
+        $response = $this->getJson('/api/v1/trips/my-active-trip-as-student');
+
+        $response->assertNotFound()
+            ->assertJson([
+                'message' => 'Nenhuma viagem ativa encontrada.',
+            ]);
+    }
+
+    public function test_student_cannot_get_completed_trip_even_if_boarded(): void
+    {
+        $student = $this->actingAsStudent();
+        $driver = User::factory()->create(['user_type' => UserType::Driver->value]);
+        $route = Route::factory()->create();
+        $vehicle = Vehicle::factory()->create();
+
+        // Create a completed trip
+        $trip = Trip::factory()->create([
+            'route_id' => $route->id,
+            'driver_id' => $driver->id,
+            'vehicle_id' => $vehicle->id,
+            'status' => TripStatus::Completed,
+        ]);
+
+        $stop = \Modules\Logistics\Models\Stop::factory()->create(['route_id' => $route->id]);
+        $studentModel = \Modules\Operation\Models\Student::factory()->create(['user_id' => $student->id]);
+
+        // Board the student without landing (simulating they were boarded before completion)
+        \Modules\Logistics\Models\Boarding::factory()->create([
+            'trip_id' => $trip->id,
+            'student_id' => $studentModel->id,
+            'stop_id' => $stop->id,
+            'landed_at' => null,
+        ]);
+
+        $response = $this->getJson('/api/v1/trips/my-active-trip-as-student');
+
+        $response->assertNotFound()
+            ->assertJson([
+                'message' => 'Nenhuma viagem ativa encontrada.',
+            ]);
+    }
 }

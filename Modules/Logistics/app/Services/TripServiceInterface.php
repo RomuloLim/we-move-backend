@@ -17,4 +17,10 @@ interface TripServiceInterface
     public function find(int $id): ?Trip;
 
     public function getActiveTripForDriver(int $driverId): ?Trip;
+
+    /**
+     * Get the active trip for a student by their user_id.
+     * This method will lookup the student record first.
+     */
+    public function getActiveTripForStudent(int $userId): ?Trip;
 }

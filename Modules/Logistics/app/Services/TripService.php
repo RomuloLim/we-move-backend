@@ -102,4 +102,16 @@ class TripService implements TripServiceInterface
     {
         return $this->repository->findByDriverAndStatus($driverId, TripStatus::InProgress);
     }
+
+    public function getActiveTripForStudent(int $studentId): ?Trip
+    {
+        // First, find the student record by user_id
+        $student = \Modules\Operation\Models\Student::where('user_id', $studentId)->first();
+
+        if (!$student) {
+            return null;
+        }
+
+        return $this->repository->findActiveTripForStudent($student->id);
+    }
 }
