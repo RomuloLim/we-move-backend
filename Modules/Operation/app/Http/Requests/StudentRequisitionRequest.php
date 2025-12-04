@@ -68,10 +68,7 @@ class StudentRequisitionRequest extends FormRequest
 
     public function toDto(): StudentRequisitionDto
     {
-        $user = $this->user();
-
         return new StudentRequisitionDto(
-            student_id: $user->id,
             semester: $this->input('semester'),
             status: RequisitionStatus::Pending,
             street_name: $this->input('street_name'),

@@ -5,7 +5,7 @@ namespace Modules\Operation\Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Modules\Operation\Enums\{ReprovedFieldEnum, RequisitionStatus};
-use Modules\Operation\Models\{Course, Institution, StudentRequisition};
+use Modules\Operation\Models\{Course, Institution, Student, StudentRequisition};
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
 use Tests\TestCase;
@@ -19,21 +19,25 @@ class StudentRequisitionApprovalTest extends TestCase
         return User::factory()->create(['user_type' => UserType::Admin->value]);
     }
 
-    private function createStudent(): User
+    private function createStudent(): Student
     {
-        return User::factory()->create(['user_type' => UserType::Student->value]);
-    }
-
-    private function createRequisition(User $student): StudentRequisition
-    {
+        $user = User::factory()->create(['user_type' => UserType::Student->value]);
         $institution = Institution::factory()->create();
         $course = Course::factory()->create();
         $institution->courses()->attach($course->id);
 
+        return Student::factory()->create([
+            'user_id' => $user->id,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
+    }
+
+    private function createRequisition(Student $student): StudentRequisition
+    {
         return StudentRequisition::factory()->create([
             'student_id' => $student->id,
             'status' => RequisitionStatus::Pending,
-            'institution_course_id' => $institution->courses()->first()->pivot->id,
+            'institution_course_id' => $student->institution_course_id,
         ]);
     }
 
@@ -56,7 +60,7 @@ class StudentRequisitionApprovalTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('students', [
-            'user_id' => $student->id,
+            'id' => $student->id,
             'status' => RequisitionStatus::Approved->value,
         ]);
     }
@@ -95,7 +99,7 @@ class StudentRequisitionApprovalTest extends TestCase
     public function test_student_cannot_approve_requisition(): void
     {
         $student = $this->createStudent();
-        Sanctum::actingAs($student);
+        Sanctum::actingAs($student->user);
 
         $requisition = $this->createRequisition($student);
 

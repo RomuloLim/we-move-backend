@@ -4,7 +4,7 @@ namespace Modules\Operation\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Operation\Enums\{AtuationForm, RequisitionStatus};
-use Modules\Operation\Models\{Course, Institution, Student, StudentRequisition};
+use Modules\Operation\Models\{Course, Institution, StudentRequisition};
 
 class StudentRequisitionFactory extends Factory
 {
@@ -25,7 +25,7 @@ class StudentRequisitionFactory extends Factory
             'street_name' => $this->faker->streetName(),
             'house_number' => $this->faker->buildingNumber(),
             'neighborhood' => $this->faker->citySuffix(),
-            'student_id' => Student::factory(),
+            'student_id' => null,
             'city' => $this->faker->city(),
             'phone_contact' => $this->faker->phoneNumber(),
             'birth_date' => $this->faker->date('Y-m-d', '-18 years'),
@@ -33,6 +33,7 @@ class StudentRequisitionFactory extends Factory
             'institution_registration' => $this->faker->unique()->numerify('########'),
             'atuation_form' => $this->faker->randomElement(AtuationForm::cases()),
             'deny_reason' => null,
+            'institution_course_id' => null,
         ];
     }
 
@@ -42,14 +43,17 @@ class StudentRequisitionFactory extends Factory
     public function configure(): static
     {
         return $this->afterMaking(function (StudentRequisition $requisition) {
+            // Generate institution course relationship if not provided
             if (!$requisition->institution_course_id) {
                 $requisition->institution_course_id = $this->generateInstitutionCourseId();
             }
 
+            // Validate that student_id is provided
             if (!$requisition->student_id) {
-                $requisition->student_id = Student::factory()->create([
-                    'institution_course_id' => $requisition->institution_course_id,
-                ])->user_id;
+                throw new \InvalidArgumentException(
+                    'StudentRequisitionFactory requires student_id to be explicitly provided. ' .
+                    'Create a Student first and pass its ID: StudentRequisition::factory()->create([\'student_id\' => $student->id])'
+                );
             }
         });
     }

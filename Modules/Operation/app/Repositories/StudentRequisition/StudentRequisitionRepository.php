@@ -57,31 +57,35 @@ class StudentRequisitionRepository implements StudentRequisitionRepositoryInterf
             ->first();
     }
 
-    public function hasApprovedRequisition(int $studentId): bool
+    public function hasApprovedRequisition(int $userId): bool
     {
         return StudentRequisition::query()
-            ->where('student_id', $studentId)
+            ->whereHas('student', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
             ->where('status', RequisitionStatus::Approved)
             ->exists();
     }
 
-    public function getPendingRequisition(int $studentId): ?StudentRequisition
+    public function getPendingRequisition(int $userId): ?StudentRequisition
     {
         return StudentRequisition::query()
-            ->where('student_id', $studentId)
+            ->whereHas('student', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
             ->where('status', RequisitionStatus::Pending)
             ->first();
     }
 
-    public function create(StudentRequisitionDto $data): StudentRequisition
+    public function create(int $studentId, StudentRequisitionDto $data): StudentRequisition
     {
         return StudentRequisition::query()
-            ->create($data->toArray());
+            ->create(array_merge(['student_id' => $studentId], $data->toArray()));
     }
 
-    public function update(StudentRequisition $requisition, StudentRequisitionDto $data): StudentRequisition
+    public function update(StudentRequisition $requisition, int $studentId, StudentRequisitionDto $data): StudentRequisition
     {
-        $requisition->update($data->toArray());
+        $requisition->update(array_merge(['student_id' => $studentId], $data->toArray()));
 
         return $requisition->fresh();
     }

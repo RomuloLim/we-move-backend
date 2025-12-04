@@ -8,7 +8,6 @@ use Modules\Operation\Enums\{AtuationForm, RequisitionStatus};
 class StudentRequisitionDto
 {
     public function __construct(
-        public int $student_id,
         public string $semester,
         public ?string $protocol = null,
         public RequisitionStatus $status = RequisitionStatus::Pending,
@@ -29,7 +28,6 @@ class StudentRequisitionDto
     public function toArray(): array
     {
         return array_filter([
-            'student_id' => $this->student_id,
             'semester' => $this->semester,
             'protocol' => $this->protocol,
             'status' => $this->status,

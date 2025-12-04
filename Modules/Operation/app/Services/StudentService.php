@@ -31,7 +31,7 @@ class StudentService implements StudentServiceInterface
         }
 
         // Buscar viagens ativas (em progresso) com suas rotas e paradas
-        $activeTrips = Trip::with(['route.stops', 'driver', 'vehicle'])
+        $activeTrips = Trip::with(['route.stops', 'route.firstStop', 'route.lastStop', 'driver', 'vehicle'])
             ->where('status', TripStatus::InProgress)
             ->whereHas('route.stops')
             ->get();

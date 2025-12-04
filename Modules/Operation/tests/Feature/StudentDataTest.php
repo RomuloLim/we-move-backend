@@ -70,7 +70,7 @@ class StudentDataTest extends TestCase
         $institutionCourseId = $institution->courses()->first()->pivot->id;
 
         StudentRequisition::factory()->create([
-            'student_id' => $student->user_id,
+            'student_id' => $student->id,
             'institution_course_id' => $institutionCourseId,
             'status' => RequisitionStatus::Approved,
         ]);
@@ -170,16 +170,16 @@ class StudentDataTest extends TestCase
         // Update student with institution course
         $student->update(['institution_course_id' => $institutionCourseId]);
 
-        // Create multiple requisitions - student_id is actually the user_id
+        // Create multiple requisitions
         StudentRequisition::factory()->create([
-            'student_id' => $student->user_id,
+            'student_id' => $student->id,
             'institution_course_id' => $institutionCourseId,
             'protocol' => 'OLD-123',
             'created_at' => now()->subDays(10),
         ]);
 
         $latestRequisition = StudentRequisition::factory()->create([
-            'student_id' => $student->user_id,
+            'student_id' => $student->id,
             'institution_course_id' => $institutionCourseId,
             'protocol' => 'NEW-456',
             'created_at' => now(),

@@ -38,7 +38,7 @@ class Student extends Model
 
     public function requisitions(): HasMany
     {
-        return $this->hasMany(StudentRequisition::class, 'student_id', 'user_id');
+        return $this->hasMany(StudentRequisition::class);
     }
 
     protected static function newFactory(): StudentFactory

@@ -31,22 +31,22 @@ interface StudentRequisitionRepositoryInterface
     /**
      * Check if a student has an approved requisition.
      */
-    public function hasApprovedRequisition(int $studentId): bool;
+    public function hasApprovedRequisition(int $userId): bool;
 
     /**
-     * Get pending requisition for a student.
+     * Get pending requisition for student.
      */
-    public function getPendingRequisition(int $studentId): ?StudentRequisition;
+    public function getPendingRequisition(int $userId): ?StudentRequisition;
 
     /**
      * Create a new requisition.
      */
-    public function create(StudentRequisitionDto $data): StudentRequisition;
+    public function create(int $studentId, StudentRequisitionDto $data): StudentRequisition;
 
     /**
      * Update a requisition.
      */
-    public function update(StudentRequisition $requisition, StudentRequisitionDto $data): StudentRequisition;
+    public function update(StudentRequisition $requisition, int $studentId, StudentRequisitionDto $data): StudentRequisition;
 
     /**
      * Delete a requisition by ID.

@@ -33,24 +33,28 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
         return $data;
     }
 
-    public function hasApprovedRequisition(int $studentId): bool
+    public function hasApprovedRequisition(int $userId): bool
     {
-        return $this->requisitionRepository->hasApprovedRequisition($studentId);
+        return $this->requisitionRepository->hasApprovedRequisition($userId);
     }
 
     public function createOrUpdate(
-        int $studentId,
+        int $userId,
         StudentRequisitionDto $requisitionData,
         array $files
     ): array {
-        return DB::transaction(function () use ($studentId, $requisitionData, $files): array {
-            $documentIds = $this->processDocuments($studentId, $files);
+        return DB::transaction(function () use ($userId, $requisitionData, $files): array {
+            // Primeiro, garante que o Student existe e obtém o ID
+            $student = $this->ensureStudentExists($userId, $requisitionData);
 
-            $pendingRequisition = $this->getPendingRequisition($studentId);
+            $documentIds = $this->processDocuments($student->id, $files);
+
+            $pendingRequisition = $this->getPendingRequisition($userId);
 
             if ($pendingRequisition) {
                 $requisition = $this->requisitionRepository->update(
                     $pendingRequisition,
+                    $student->id,
                     $requisitionData
                 );
 
@@ -61,15 +65,13 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
             } else {
                 $requisitionData->protocol = $this->generateUniqueProtocol();
 
-                $requisition = $this->requisitionRepository->create($requisitionData);
+                $requisition = $this->requisitionRepository->create($student->id, $requisitionData);
 
                 $this->documentRepository->attachToRequisition(
                     $requisition->id,
                     $documentIds
                 );
             }
-
-            $this->syncStudent($studentId, $requisitionData);
 
             return [
                 'protocol' => $requisition->protocol,
@@ -102,7 +104,12 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
             if (isset($files[$fieldName])) {
                 $file = $files[$fieldName];
 
-                $path = $file->store('documents/' . $studentId);
+                // if is development, store public else private
+                if (app()->environment('local', 'development')) {
+                    $path = $file->storePublicly('documents/' . $studentId, 'public');
+                } else {
+                    $path = $file->store('documents/' . $studentId);
+                }
 
                 $document = $this->documentRepository->create(
                     new DocumentDto(
@@ -120,42 +127,48 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
         return $documentIds;
     }
 
-    protected function syncStudent(int $studentId, StudentRequisitionDto $requisitionData): void
+    /**
+     * Garante que o Student existe, criando ou atualizando conforme necessário.
+     */
+    protected function ensureStudentExists(int $userId, StudentRequisitionDto $requisitionData): \Modules\Operation\Models\Student
     {
         $studentData = [
-            'user_id' => $studentId,
+            'user_id' => $userId,
             'institution_course_id' => $requisitionData->institution_course_id,
             'city_of_origin' => $requisitionData->city,
             'status' => $requisitionData->status->value,
             'qrcode_token' => Str::uuid()->toString(),
         ];
 
-        $student = $this->studentRepository->findByUserId($studentId);
+        $student = $this->studentRepository->findByUserId($userId);
 
         if ($student) {
-            $this->studentRepository->update($student, $studentData);
-        } else {
-            $this->studentRepository->create($studentData);
+            return $this->studentRepository->update($student, $studentData);
         }
+
+        return $this->studentRepository->create($studentData);
     }
 
-    private function getPendingRequisition(int $studentId): ?StudentRequisition
+    private function getPendingRequisition(int $userId): ?StudentRequisition
     {
-        return $this->requisitionRepository->getPendingRequisition($studentId);
+        return $this->requisitionRepository->getPendingRequisition($userId);
     }
 
     public function approve(int $id): StudentRequisition
     {
         $requisition = $this->requisitionRepository->find($id);
 
-        $updatedRequisition = $this->requisitionRepository->update($requisition, new StudentRequisitionDto(
-            student_id: $requisition->student_id,
-            semester: $requisition->semester,
-            status: RequisitionStatus::Approved
-        ));
+        $updatedRequisition = $this->requisitionRepository->update(
+            $requisition,
+            $requisition->student_id,
+            new StudentRequisitionDto(
+                semester: $requisition->semester,
+                status: RequisitionStatus::Approved
+            )
+        );
 
-        $this->syncStudent($requisition->student_id, new StudentRequisitionDto(
-            student_id: $requisition->student_id,
+        // Atualiza o Student com status aprovado
+        $this->ensureStudentExists($requisition->student->user_id, new StudentRequisitionDto(
             semester: $requisition->semester,
             status: RequisitionStatus::Approved,
             city: $requisition->city,
@@ -169,13 +182,16 @@ class StudentRequisitionService implements StudentRequisitionServiceInterface
     {
         $requisition = $this->requisitionRepository->find($id);
 
-        $updatedRequisition = $this->requisitionRepository->update($requisition, new StudentRequisitionDto(
-            student_id: $requisition->student_id,
-            semester: $requisition->semester,
-            status: RequisitionStatus::Reproved,
-            deny_reason: $reason,
-            reproved_fields: $reprovedFields
-        ));
+        $updatedRequisition = $this->requisitionRepository->update(
+            $requisition,
+            $requisition->student_id,
+            new StudentRequisitionDto(
+                semester: $requisition->semester,
+                status: RequisitionStatus::Reproved,
+                deny_reason: $reason,
+                reproved_fields: $reprovedFields
+            )
+        );
 
         return $updatedRequisition;
     }

@@ -19,7 +19,7 @@ interface StudentRequisitionServiceInterface
     /**
      * Check if a student has an approved requisition.
      */
-    public function hasApprovedRequisition(int $studentId): bool;
+    public function hasApprovedRequisition(int $userId): bool;
 
     /**
      * Create or update a student requisition.
@@ -28,7 +28,7 @@ interface StudentRequisitionServiceInterface
      * @return array{protocol: string, status: string}
      */
     public function createOrUpdate(
-        int $studentId,
+        int $userId,
         StudentRequisitionDto $requisitionData,
         array $files
     ): array;

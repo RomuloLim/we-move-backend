@@ -7,7 +7,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Modules\Operation\Enums\{AtuationForm, RequisitionStatus};
-use Modules\Operation\Models\{Course, Institution, StudentRequisition};
+use Modules\Operation\Models\{Course, Institution, Student, StudentRequisition};
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
 use Tests\TestCase;
@@ -22,9 +22,17 @@ class StudentRequisitionTest extends TestCase
         Storage::fake('public');
     }
 
-    private function createStudent(): User
+    private function createStudent(): Student
     {
-        return User::factory()->create(['user_type' => UserType::Student->value]);
+        $user = User::factory()->create(['user_type' => UserType::Student->value]);
+        $institution = Institution::factory()->create();
+        $course = Course::factory()->create();
+        $institution->courses()->attach($course->id);
+
+        return Student::factory()->create([
+            'user_id' => $user->id,
+            'institution_course_id' => $institution->courses()->first()->pivot->id,
+        ]);
     }
 
     private function getValidRequisitionData(): array
@@ -56,7 +64,7 @@ class StudentRequisitionTest extends TestCase
     public function test_student_can_submit_requisition(): void
     {
         $student = $this->createStudent();
-        Sanctum::actingAs($student);
+        Sanctum::actingAs($student->user);
 
         $data = $this->getValidRequisitionData();
 
@@ -80,7 +88,7 @@ class StudentRequisitionTest extends TestCase
     public function test_student_cannot_submit_requisition_if_already_approved(): void
     {
         $student = $this->createStudent();
-        Sanctum::actingAs($student);
+        Sanctum::actingAs($student->user);
 
         $institution = Institution::factory()->create();
         $course = Course::factory()->create();
@@ -108,7 +116,7 @@ class StudentRequisitionTest extends TestCase
     public function test_student_can_update_pending_requisition(): void
     {
         $student = $this->createStudent();
-        Sanctum::actingAs($student);
+        Sanctum::actingAs($student->user);
 
         $institution = Institution::factory()->create();
         $course = Course::factory()->create();
@@ -163,7 +171,7 @@ class StudentRequisitionTest extends TestCase
     public function test_requisition_requires_all_fields(): void
     {
         $student = $this->createStudent();
-        Sanctum::actingAs($student);
+        Sanctum::actingAs($student->user);
 
         $response = $this->postJson('/api/v1/requisitions', []);
 
@@ -193,13 +201,13 @@ class StudentRequisitionTest extends TestCase
         $student1 = $this->createStudent();
         $student2 = $this->createStudent();
 
-        Sanctum::actingAs($student1);
+        Sanctum::actingAs($student1->user);
         $data1 = $this->getValidRequisitionData();
         $response1 = $this->postJson('/api/v1/requisitions', $data1);
         $response1->assertCreated();
         $protocol1 = $response1->json('data.protocol');
 
-        Sanctum::actingAs($student2);
+        Sanctum::actingAs($student2->user);
         $data2 = $this->getValidRequisitionData();
         $response2 = $this->postJson('/api/v1/requisitions', $data2);
         $response2->assertCreated();

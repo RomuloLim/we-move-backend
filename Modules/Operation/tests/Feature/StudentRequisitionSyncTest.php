@@ -22,7 +22,7 @@ class StudentRequisitionSyncTest extends TestCase
         Storage::fake('public');
     }
 
-    private function createStudent(): User
+    private function createStudentUser(): User
     {
         return User::factory()->create(['user_type' => UserType::Student->value]);
     }
@@ -54,8 +54,8 @@ class StudentRequisitionSyncTest extends TestCase
 
     public function test_student_record_is_created_when_requisition_is_submitted(): void
     {
-        $student = $this->createStudent();
-        Sanctum::actingAs($student);
+        $studentUser = $this->createStudentUser();
+        Sanctum::actingAs($studentUser);
 
         $data = $this->getValidRequisitionData();
 
@@ -64,7 +64,7 @@ class StudentRequisitionSyncTest extends TestCase
         $response->assertCreated();
 
         $this->assertDatabaseHas('students', [
-            'user_id' => $student->id,
+            'user_id' => $studentUser->id,
             'city_of_origin' => 'São Paulo',
             'status' => RequisitionStatus::Pending->value,
         ]);
@@ -72,8 +72,8 @@ class StudentRequisitionSyncTest extends TestCase
 
     public function test_student_record_is_updated_when_requisition_is_updated(): void
     {
-        $student = $this->createStudent();
-        Sanctum::actingAs($student);
+        $studentUser = $this->createStudentUser();
+        Sanctum::actingAs($studentUser);
 
         $institution = Institution::factory()->create();
         $course = Course::factory()->create();
@@ -86,7 +86,7 @@ class StudentRequisitionSyncTest extends TestCase
         $this->postJson('/api/v1/requisitions', $data);
 
         $this->assertDatabaseHas('students', [
-            'user_id' => $student->id,
+            'user_id' => $studentUser->id,
             'city_of_origin' => 'Rio de Janeiro',
         ]);
 
@@ -99,7 +99,7 @@ class StudentRequisitionSyncTest extends TestCase
         $response->assertCreated(); // or whatever status update returns
 
         $this->assertDatabaseHas('students', [
-            'user_id' => $student->id,
+            'user_id' => $studentUser->id,
             'city_of_origin' => 'Curitiba',
         ]);
 

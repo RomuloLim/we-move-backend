@@ -5,7 +5,7 @@ namespace Modules\Operation\Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Modules\Operation\Enums\CourseType;
-use Modules\Operation\Models\{Course, Institution, InstitutionCourse, StudentRequisition};
+use Modules\Operation\Models\{Course, Institution, InstitutionCourse, Student, StudentRequisition};
 use Modules\User\Enums\UserType;
 use Modules\User\Models\User;
 use Symfony\Component\HttpFoundation\Response as StatusCode;
@@ -90,13 +90,18 @@ class CourseCrudTest extends TestCase
     {
         $this->userActingAs(UserType::Admin);
 
-        $student = User::factory()->create(['user_type' => UserType::Student->value]);
+        $user = User::factory()->create(['user_type' => UserType::Student->value]);
         $course = Course::factory()->create();
         $institution = Institution::factory()->create();
 
         $institutionCourse = InstitutionCourse::create([
             'institution_id' => $institution->id,
             'course_id' => $course->id,
+        ]);
+
+        $student = Student::factory()->create([
+            'user_id' => $user->id,
+            'institution_course_id' => $institutionCourse->id,
         ]);
 
         StudentRequisition::factory()->create([
