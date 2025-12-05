@@ -82,4 +82,15 @@ class NoticeService implements NoticeServiceInterface
     {
         return $this->noticeRepository->delete($id);
     }
+
+    public function markAsRead(int $noticeId, int $userId): void
+    {
+        $notice = $this->noticeRepository->find($noticeId);
+
+        if (!$notice) {
+            throw new \Exception('Aviso não encontrado.');
+        }
+
+        $this->noticeRepository->markAsRead($noticeId, $userId);
+    }
 }

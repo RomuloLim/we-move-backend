@@ -335,4 +335,91 @@ class NoticeTest extends TestCase
             ->assertJsonPath('meta.per_page', 3)
             ->assertJsonPath('meta.total', 10);
     }
+
+    public function test_user_can_mark_notice_as_read(): void
+    {
+        $user = $this->userActingAs(UserType::Student);
+        $notice = Notice::factory()->create();
+
+        $response = $this->postJson('/api/v1/notices/' . $notice->id . '/mark-as-read');
+
+        $response->assertOk()
+            ->assertJsonFragment(['message' => 'Aviso marcado como lido.']);
+
+        $this->assertDatabaseHas('notice_reads', [
+            'notice_id' => $notice->id,
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public function test_cannot_mark_nonexistent_notice_as_read(): void
+    {
+        $this->userActingAs(UserType::Student);
+
+        $response = $this->postJson('/api/v1/notices/99999/mark-as-read');
+
+        $response->assertBadRequest()
+            ->assertJsonFragment(['message' => 'Aviso não encontrado.']);
+    }
+
+    public function test_marking_already_read_notice_is_idempotent(): void
+    {
+        $user = $this->userActingAs(UserType::Student);
+        $notice = Notice::factory()->create();
+
+        // First mark as read
+        $response1 = $this->postJson('/api/v1/notices/' . $notice->id . '/mark-as-read');
+        $response1->assertOk();
+
+        // Mark as read again - should not fail
+        $response2 = $this->postJson('/api/v1/notices/' . $notice->id . '/mark-as-read');
+        $response2->assertOk();
+
+        // Should still have only one record
+        $this->assertDatabaseCount('notice_reads', 1);
+    }
+
+    public function test_different_users_can_mark_same_notice_as_read(): void
+    {
+        $user1 = $this->userActingAs(UserType::Student);
+        $notice = Notice::factory()->create();
+
+        // User 1 marks as read
+        $response1 = $this->postJson('/api/v1/notices/' . $notice->id . '/mark-as-read');
+        $response1->assertOk();
+
+        // User 2 marks the same notice as read
+        $user2 = User::factory()->create(['user_type' => UserType::Student->value]);
+        Sanctum::actingAs($user2);
+
+        $response2 = $this->postJson('/api/v1/notices/' . $notice->id . '/mark-as-read');
+        $response2->assertOk();
+
+        // Should have two records
+        $this->assertDatabaseCount('notice_reads', 2);
+        $this->assertDatabaseHas('notice_reads', ['notice_id' => $notice->id, 'user_id' => $user1->id]);
+        $this->assertDatabaseHas('notice_reads', ['notice_id' => $notice->id, 'user_id' => $user2->id]);
+    }
+
+    public function test_marked_notice_disappears_from_unread_list(): void
+    {
+        $user = $this->userActingAs(UserType::Student);
+
+        $notice1 = Notice::factory()->create();
+        $notice2 = Notice::factory()->create();
+
+        // Get unread - should have 2
+        $response1 = $this->getJson('/api/v1/notices/unread');
+        $response1->assertOk()->assertJsonCount(2, 'data');
+
+        // Mark one as read
+        $this->postJson('/api/v1/notices/' . $notice1->id . '/mark-as-read');
+
+        // Get unread again - should have 1
+        $response2 = $this->getJson('/api/v1/notices/unread');
+        $response2->assertOk()->assertJsonCount(1, 'data');
+
+        $data = $response2->json('data');
+        $this->assertEquals($notice2->id, $data[0]['id']);
+    }
 }

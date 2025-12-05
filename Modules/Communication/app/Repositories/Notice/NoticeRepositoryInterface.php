@@ -44,4 +44,9 @@ interface NoticeRepositoryInterface
      * Delete a notice by ID.
      */
     public function delete(int $id): bool;
+
+    /**
+     * Mark a notice as read by a user.
+     */
+    public function markAsRead(int $noticeId, int $userId): bool;
 }

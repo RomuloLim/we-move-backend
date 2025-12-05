@@ -61,4 +61,21 @@ class NoticeRepository implements NoticeRepositoryInterface
 
         return (bool) $notice?->delete();
     }
+
+    public function markAsRead(int $noticeId, int $userId): bool
+    {
+        $notice = $this->find($noticeId);
+
+        if (!$notice) {
+            return false;
+        }
+
+        if ($notice->readByUsers()->where('user_id', $userId)->exists()) {
+            return true;
+        }
+
+        $notice->readByUsers()->attach($userId, ['read_at' => now()]);
+
+        return true;
+    }
 }

@@ -56,4 +56,18 @@ class NoticeController extends Controller
 
         return response()->json(['message' => 'Aviso removido com sucesso.']);
     }
+
+    public function markAsRead(int $id): JsonResponse
+    {
+        try {
+            $userId = Auth::id();
+            $this->service->markAsRead($id, $userId);
+
+            return response()->json(['message' => 'Aviso marcado como lido.']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], StatusCode::HTTP_BAD_REQUEST);
+        }
+    }
 }
