@@ -118,6 +118,8 @@ class AuthController extends Controller
                 $user->load($relationToLoad);
             }
 
+            $user->load('studentProfile');
+
             return response()->json([
                 'data' => new UserResource($user),
             ], 200);

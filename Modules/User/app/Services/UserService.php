@@ -95,6 +95,10 @@ class UserService
 
         $user->save();
 
+        $user->load([
+            'studentProfile',
+        ]);
+
         return $user;
     }
 

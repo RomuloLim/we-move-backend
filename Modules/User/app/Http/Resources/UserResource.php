@@ -20,10 +20,11 @@ class UserResource extends JsonResource
             'rg' => $this->rg,
             'gender' => $this->gender,
             'gender_label' => $this->gender_text,
+            'phone_contact' => $this->phone_contact,
             'user_type' => $this->user_type,
             'user_type_label' => $this->user_type->label(),
-            'phone_contact' => $this->phone_contact,
-            'profile_picture_url' => $this->profile_picture_url,
+            'student_profile' => $this->whenLoaded('studentProfile'),
+            'email_verified_at' => $this->email_verified_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
