@@ -1,61 +1,113 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# We Move — Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend da aplicação **We Move**, um sistema de gerenciamento de transporte universitário. A plataforma conecta estudantes, motoristas e administradores, facilitando o cadastro de rotas, controle de viagens, embarque de passageiros e gerenciamento de solicitações de transporte.
 
-## About Laravel
+## Objetivo
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Oferecer uma API RESTful robusta para gerenciar todas as operações de transporte universitário: desde a solicitação de um estudante até o embarque na van/ônibus, passando pelo controle de rotas, paradas, veículos e comunicados institucionais.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tecnologias
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **PHP 8.2** + **Laravel 12**
+- **PostgreSQL 17** — banco de dados relacional
+- **MinIO** — armazenamento de arquivos compatível com S3
+- **Laravel Sanctum** — autenticação via tokens de API
+- **Laravel Sail** — ambiente de desenvolvimento baseado em Docker
+- Arquitetura de **Monolito Modular** com [`nwidart/laravel-modules`](https://nwidart.com/laravel-modules)
 
-## Learning Laravel
+## Módulos e Funcionalidades
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+| Módulo | Responsabilidade |
+|---|---|
+| **Auth** | Registro e login de usuários |
+| **User** | Gerenciamento de usuários e controle de permissões por perfil |
+| **Operation** | Instituições, cursos, estudantes e solicitações de transporte |
+| **Logistics** | Veículos, rotas, paradas, viagens e embarques |
+| **Communication** | Comunicados institucionais |
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Perfis de Usuário
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Perfil | Descrição |
+|---|---|
+| `super-admin` | Acesso total ao sistema |
+| `admin` | Gerencia usuários, rotas, viagens, veículos e solicitações |
+| `driver` | Visualiza suas rotas e gerencia o status das viagens |
+| `student` | Solicita transporte e acompanha suas solicitações |
 
-## Laravel Sponsors
+## Setup Local com Laravel Sail
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Pré-requisitos
 
-### Premium Partners
+- [Docker](https://www.docker.com/get-started)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Passo a passo
 
-## Contributing
+**1. Clone o repositório**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+git clone https://github.com/RomuloLim/we-move-backend.git
+cd we-move-backend
+```
 
-## Code of Conduct
+**2. Instale as dependências PHP**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php82-composer:latest \
+    composer install --ignore-platform-reqs \
+        && composer require laravel/sail --dev
+```
 
-## Security Vulnerabilities
+**3. Configure as variáveis de ambiente**
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+cp .env.example .env
+```
 
-## License
+> Ajuste as variáveis conforme necessário. As configurações padrão já são compatíveis com o ambiente Sail.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**4. Gere a chave da aplicação**
+
+```bash
+php artisan key:generate
+```
+
+**5. Suba os containers com o Sail**
+
+```bash
+./vendor/bin/sail up -d
+```
+
+> Os serviços disponíveis são: aplicação Laravel (porta `80`), PostgreSQL (porta `5432`) e MinIO (porta `9000`, console na `8900`).
+
+**6. Execute as migrations e os seeders**
+
+```bash
+./vendor/bin/sail artisan migrate --seed
+```
+
+**7. Acesse a API**
+
+A API estará disponível em: `http://localhost/api/v1/`
+
+A documentação da API (Scramble) estará disponível em: `http://localhost/docs/api`
+
+### Comandos úteis
+
+```bash
+# Parar os containers
+./vendor/bin/sail down
+
+# Executar os testes
+./vendor/bin/sail artisan test
+
+# Formatar o código
+./vendor/bin/sail composer pint
+```
+
+## Licença
+
+Este projeto está licenciado sob a [MIT License](https://opensource.org/licenses/MIT).
