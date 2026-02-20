@@ -38,8 +38,7 @@ Oferecer uma API RESTful robusta para gerenciar todas as operações de transpor
 
 ### Pré-requisitos
 
-- [Docker](https://www.docker.com/get-started) e Docker Compose instalados
-- [PHP 8.2+](https://www.php.net/downloads) e [Composer](https://getcomposer.org/) instalados localmente (apenas para a instalação inicial)
+- [Docker](https://www.docker.com/get-started)
 
 ### Passo a passo
 
@@ -53,7 +52,13 @@ cd we-move-backend
 **2. Instale as dependências PHP**
 
 ```bash
-composer install
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php82-composer:latest \
+    composer install --ignore-platform-reqs \
+        && composer require laravel/sail --dev
 ```
 
 **3. Configure as variáveis de ambiente**
